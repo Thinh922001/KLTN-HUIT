@@ -16,7 +16,7 @@ export class AuthController extends BaseController {
   async auth(@Body() loginDto: LoginDto) {
     // const data = await this.authService.login(loginDto);
     return {
-      hello: 'thinh huhu',
+      hello: 'thinh huhuhihii',
     };
   }
 
