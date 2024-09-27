@@ -35,7 +35,7 @@ export class UsersService {
   }
 
   async findByEmail(email: string) {
-    return await this.userRepo.findOne({ where: { email: email, accountType: AUTH_TYPE.USER_PASSWORD } });
+    return await this.userRepo.findOne({ where: { email: email } });
   }
 
   async findById(id: number) {

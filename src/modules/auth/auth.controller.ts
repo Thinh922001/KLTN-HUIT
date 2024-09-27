@@ -14,8 +14,10 @@ export class AuthController extends BaseController {
 
   @Get('login')
   async auth(@Body() loginDto: LoginDto) {
-    const data = await this.authService.login(loginDto);
-    return this.response(data);
+   // const data = await this.authService.login(loginDto);
+    return {
+      hello : 'thinh'
+    }
   }
 
   @Post('register')

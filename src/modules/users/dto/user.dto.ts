@@ -9,6 +9,5 @@ export class UserDto {
   constructor(user: UserEntity) {
     this.id = user.id;
     this.email = user.email;
-    this.accountType = user.accountType;
   }
 }

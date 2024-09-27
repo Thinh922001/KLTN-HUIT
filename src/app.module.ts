@@ -4,8 +4,6 @@ import dataSource from '../typeOrm.config';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
-import { DoctorModule } from './modules/doctor/doctor.module';
-import { AdminModule } from './modules/admin/admin.module';
 import mySql from './db/mySql';
 
 @Module({
@@ -23,8 +21,6 @@ import mySql from './db/mySql';
     }),
     AuthModule,
     UsersModule,
-    DoctorModule,
-    AdminModule,
   ],
   controllers: [],
   providers: [],
