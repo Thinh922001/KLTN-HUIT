@@ -14,10 +14,10 @@ export class AuthController extends BaseController {
 
   @Get('login')
   async auth(@Body() loginDto: LoginDto) {
-   // const data = await this.authService.login(loginDto);
+    // const data = await this.authService.login(loginDto);
     return {
-      hello : 'thinh'
-    }
+      hello: 'thinh huhu',
+    };
   }
 
   @Post('register')
