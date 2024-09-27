@@ -1,0 +1,13 @@
+.idea/
+.vscode/
+node_modules/
+build/
+tmp/
+temp/
+debug.log
+/dist/
+.env
+debug.log
+dump.rdb
+.DS_Store
+src/services/inFile/temp/*

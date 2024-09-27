@@ -1,0 +1,33 @@
+export enum GenericErrorMessage {
+  UNAUTHORIZED = 'Unauthorized',
+  NOT_FOUND = 'Not Found',
+  BAD_REQUEST = 'Bad Request',
+  FORBIDDEN = 'Forbidden',
+  CONFLICT = 'Conflict',
+  INTERNAL_SERVER_ERROR = 'Internal Server Error',
+}
+
+export enum GenericErrorCode {
+  UNAUTHORIZED = 'UNAUTHORIZED',
+  NOT_FOUND = 'NOT_FOUND',
+  BAD_REQUEST = 'BAD_REQUEST',
+  FORBIDDEN = 'FORBIDDEN',
+  CONFLICT = 'CONFLICT',
+  INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
+}
+
+export enum ErrorMessage {
+  INVALID_USER = 'Invalid user',
+  USER_EXISTED = 'User existed',
+  EXPIRED_TOKEN = 'Token expired',
+  INVALID_TOKEN = 'Invalid token',
+  INVALID_REFRESH_TOKEN = 'Invalid refresh token',
+  EXPIRED_REFRESH_TOKEN = 'Refresh token expired',
+  NOT_BEFORE = 'Current time is before the nbf claim.',
+}
+
+export enum JsonWebTokenError {
+  EXPIRED_TOKEN = 'TokenExpiredError',
+  INVALID_TOKEN = 'JsonWebTokenError',
+  NOT_BEFORE = 'NotBeforeError',
+}
