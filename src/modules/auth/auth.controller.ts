@@ -17,6 +17,7 @@ export class AuthController extends BaseController {
     // const data = await this.authService.login(loginDto);
     return {
       hello: 'thinh huhuhihii',
+      raiwyApp : 'Hello'
     };
   }
 
