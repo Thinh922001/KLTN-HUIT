@@ -1,8 +1,7 @@
 {
-  "name": "minpokei",
+  "name": "KLTN",
   "version": "0.0.1",
   "description": "",
-  "author": "VFA",
   "license": "MIT",
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.build.json && yarn copy:templates",
