@@ -7,6 +7,8 @@ import { UsersModule } from './modules/users/users.module';
 import { ProvinceModule } from './modules/province/province.module';
 import { DistrictModule } from './modules/district/district.module';
 import { WardModule } from './modules/ward/ward.module';
+import { ProductModule } from './modules/product/product.module';
+import { CategoryModule } from './modules/category/category.module';
 import mySql from './db/mySql';
 
 @Module({
@@ -27,6 +29,8 @@ import mySql from './db/mySql';
     ProvinceModule,
     DistrictModule,
     WardModule,
+    ProductModule,
+    CategoryModule,
   ],
   controllers: [],
   providers: [],

@@ -23,7 +23,7 @@
     "prepare": "husky install",
     "typeorm": "ts-node ./node_modules/typeorm/cli",
     "migrations:run": "yarn run typeorm migration:run -- -d ./typeOrm.config.ts",
-    "migration:generate": "yarn run typeorm -- -d ./typeOrm.config.ts migration:generate ./src/migrations/add_14_tables",
+    "migration:generate": "yarn run typeorm -- -d ./typeOrm.config.ts migration:generate ./src/migrations/fix_old_price",
     "migration:create": "yarn run typeorm -- migration:create ./src/migrations/$npm_config_name",
     "migration:revert": "yarn run typeorm -- -d ./typeOrm.config.ts migration:revert",
     "copy:templates": "cpx './src/services/mail/templates/**' 'dist/src/services/mail/templates' --clean"

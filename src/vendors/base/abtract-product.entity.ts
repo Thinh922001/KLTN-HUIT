@@ -24,7 +24,7 @@ export class AbstractProduct extends AbstractEntity {
     type: 'decimal',
     precision: 10,
     scale: 2,
-    nullable: false,
+    nullable: true,
     name: 'old_price',
   })
   oldPrice: number;

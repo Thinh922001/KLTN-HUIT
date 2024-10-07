@@ -18,7 +18,7 @@ export class ProductsEntity extends AbstractProduct {
     nullable: false,
     name: 'product_name',
   })
-  ProductName: string;
+  productName: string;
 
   @Column({
     type: 'varchar',
@@ -29,9 +29,9 @@ export class ProductsEntity extends AbstractProduct {
   img: string;
 
   @Column({
-    type: 'simple-array',
+    type: 'tinyint',
+    unsigned: true,
     nullable: true,
-    name: 'text_online_type',
   })
   textOnlineType: number;
 
