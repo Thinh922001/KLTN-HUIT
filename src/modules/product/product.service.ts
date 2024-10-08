@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ProductRepository } from '../../repositories';
 import { CateEntity, LabelEntity, LabelProductEntity, ProductsEntity } from '../../entities';
-import { GetCateDto } from '../category/dto/cate.dto';
+import { GetCateDto, IOrderBy, ISearch } from '../category/dto/cate.dto';
 import { ProductDto } from './dto/product.dto';
-import { PagingDto } from '../../vendors/dto/pager.dto';
+import { applyPagination, convertAnyTo } from '../../utils/utils';
+import { SelectQueryBuilder } from 'typeorm';
 
 @Injectable()
 export class ProductService {
@@ -17,10 +18,9 @@ export class ProductService {
     this.labelProductAlias = LabelProductEntity.name;
     this.labelAlias = LabelEntity.name;
   }
-  public async getProductByCate({ cateId, take, skip }: GetCateDto) {
+  public async getProductByCate({ cateId, take, skip, orderBy, filters }: GetCateDto) {
     const query = this.productRepo
       .createQueryBuilder(this.entityAlias)
-      .innerJoin(`${this.entityAlias}.cate`, this.cateAlias, `${this.cateAlias}.id = ${this.entityAlias}.cate_id`)
       .leftJoinAndSelect(
         `${this.entityAlias}.labelProducts`,
         this.labelProductAlias,
@@ -46,17 +46,54 @@ export class ProductService {
         `${this.labelAlias}.type`,
       ]);
 
-    const itemCount = await query.getCount();
+    if (orderBy) {
+      this.applyOrderBy(query, orderBy);
+    }
 
-    const { entities } = await query.getRawAndEntities();
+    if (filters) {
+      this.applyFilters(query, filters);
+    }
 
-    const paging = new PagingDto(itemCount, { take, skip });
+    const { data, paging } = await applyPagination<ProductsEntity>(query, take, skip);
 
-    const result: ProductDto[] = entities.map((e) => new ProductDto(e));
+    const result: ProductDto[] = data.map((e) => new ProductDto(e));
 
     return {
       data: result,
       paging: paging,
     };
+  }
+
+  private applyOrderBy(query: SelectQueryBuilder<any>, orderBy: IOrderBy) {
+    if (orderBy) {
+      const obj: IOrderBy = convertAnyTo<IOrderBy>(orderBy);
+      const orderFields = [
+        { key: 'trend', column: `${this.entityAlias}.starRate` },
+        { key: 'well-sell', column: `${this.entityAlias}.totalVote` },
+        { key: 'discount', column: `${this.entityAlias}.discountPercent` },
+        { key: 'new', column: `${this.entityAlias}.createdAt` },
+        { key: 'price', column: `${this.entityAlias}.price` },
+      ];
+
+      orderFields.forEach(({ key, column }, index) => {
+        if (obj[key]) {
+          if (index === 0) {
+            query.orderBy(column, obj[key]);
+          } else {
+            query.addOrderBy(column, obj[key]);
+          }
+        }
+      });
+    }
+  }
+
+  private applyFilters(query: SelectQueryBuilder<any>, filters: ISearch) {
+    if (filters) {
+      const obj: ISearch = convertAnyTo<ISearch>(filters);
+      const brandFilter = obj['brand'];
+      if (Array.isArray(brandFilter) && brandFilter.length > 0) {
+        query.andWhere(`${this.entityAlias}.brand_id IN (:...ids)`, { ids: brandFilter });
+      }
+    }
   }
 }
