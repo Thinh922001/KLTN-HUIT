@@ -24,7 +24,7 @@ export class ProductDto {
   id: number;
   title: string;
   img: string;
-  label: ILabel[];
+  labels: ILabel[];
   txtOnline: number;
   price: number;
   tabs: string[];
@@ -52,7 +52,7 @@ export class ProductDto {
     this.price = price;
     this.tabs = tabs;
 
-    this.label =
+    this.labels =
       labelProducts.length > 0
         ? labelProducts.map<ILabel>((e) => ({
             label: e.label.type,
