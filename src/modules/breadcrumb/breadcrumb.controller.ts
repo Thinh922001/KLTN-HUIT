@@ -1,4 +1,4 @@
-import { Body, Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { GetBreadCrumbDto } from './dto/get-breadcrumb.dto';
 import { BreadcrumbService } from './breadcrumb.service';
 import { BaseController } from '../../vendors/base/base-comtroller';
@@ -9,7 +9,7 @@ export class BreadcrumbController extends BaseController {
     super();
   }
   @Get()
-  async getBreadCrumb(@Body() params: GetBreadCrumbDto) {
+  async getBreadCrumb(@Query() params: GetBreadCrumbDto) {
     const data = await this.breadCrumbService.getBreadCrumb(params);
     return this.response(data);
   }
