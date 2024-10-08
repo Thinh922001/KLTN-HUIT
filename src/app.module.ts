@@ -9,6 +9,8 @@ import { DistrictModule } from './modules/district/district.module';
 import { WardModule } from './modules/ward/ward.module';
 import { ProductModule } from './modules/product/product.module';
 import { CategoryModule } from './modules/category/category.module';
+import { BrandModule } from './modules/brand/brand.module';
+import { BreadcrumbModule } from './modules/breadcrumb/breadcrumb.module';
 import mySql from './db/mySql';
 
 @Module({
@@ -31,6 +33,8 @@ import mySql from './db/mySql';
     WardModule,
     ProductModule,
     CategoryModule,
+    BrandModule,
+    BreadcrumbModule,
   ],
   controllers: [],
   providers: [],
