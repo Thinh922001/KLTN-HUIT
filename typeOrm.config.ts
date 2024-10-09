@@ -18,4 +18,11 @@ export default new DataSource({
   ],
   // subscribers: [path.join(__dirname, './src/modules/**/*.subscriber{.ts,.js}')],
   migrationsRun: true,
+  cache: {
+    type: 'redis',
+    duration: 60000,
+    options: {
+      url: 'redis://default:UrUeINhOYEMkjkHFVclvPTIjBeqgwqkC@junction.proxy.rlwy.net:38693',
+    },
+  },
 });

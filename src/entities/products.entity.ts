@@ -22,6 +22,14 @@ export class ProductsEntity extends AbstractProduct {
 
   @Column({
     type: 'varchar',
+    length: 50,
+    unique: true,
+    nullable: true,
+  })
+  product_code: string;
+
+  @Column({
+    type: 'varchar',
     length: 255,
     nullable: true,
     name: 'img',
@@ -48,6 +56,13 @@ export class ProductsEntity extends AbstractProduct {
     name: 'variants',
   })
   variants: Variant[];
+
+  @Column({
+    type: 'json',
+    nullable: true,
+    name: 'specifications',
+  })
+  specifications: any;
 
   @Column({
     type: 'int',

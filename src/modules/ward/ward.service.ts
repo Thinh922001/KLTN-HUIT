@@ -17,6 +17,7 @@ export class WardService {
       .leftJoinAndSelect(`${this.entityAlias}.district`, this.districtsAlias)
       .where(`${this.districtsAlias}.id = :districtId`, { districtId })
       .select([`${this.entityAlias}.id`, `${this.entityAlias}.name`])
+      .cache(true)
       .getMany();
   }
 }

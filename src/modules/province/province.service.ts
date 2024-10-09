@@ -8,6 +8,6 @@ export class ProvinceService {
   constructor(private readonly provinceRepo: ProvinceRepository) {}
 
   public async getProvince() {
-    return await this.provinceRepo.find({ select: ['id', 'name'] });
+    return await this.provinceRepo.find({ select: ['id', 'name'], cache: true });
   }
 }

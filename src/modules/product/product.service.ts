@@ -28,6 +28,7 @@ export class ProductService {
       )
       .innerJoinAndSelect(`${this.labelProductAlias}.label`, this.labelAlias)
       .where(`${this.entityAlias}.cate_id = :cateId`, { cateId })
+      .cache(true)
       .select([
         `${this.entityAlias}.id`,
         `${this.entityAlias}.createdAt`,

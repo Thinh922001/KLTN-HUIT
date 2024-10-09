@@ -18,6 +18,7 @@ export class BrandService {
       .innerJoin(`${this.entityAlias}.products`, this.productAlias)
       .where(`${this.productAlias}.cate_id = :cateId`, { cateId })
       .select([`${this.entityAlias}.id`, `${this.entityAlias}.name`])
+      .cache(true)
       .getMany();
 
     return data;

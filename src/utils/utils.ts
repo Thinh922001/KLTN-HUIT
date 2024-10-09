@@ -1,6 +1,7 @@
 import { genSalt } from 'bcrypt';
 import { PagingDto } from '../vendors/dto/pager.dto';
 import { SelectQueryBuilder } from 'typeorm';
+import { Variant } from '../vendors/base/type';
 
 export async function saltHasPassword(num: number = 10) {
   const salt = await genSalt(num);
@@ -41,4 +42,46 @@ export const applyPagination = async <T>(
     data: entities,
     paging,
   };
+};
+
+export const removeVietnameseTones = (str) => {
+  str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  str = str.replace(/đ/g, 'd').replace(/Đ/g, 'D');
+  return str;
+};
+
+export const formatString = (str) => {
+  let formattedStr = str.replace(/\s+/g, '-');
+
+  formattedStr = removeVietnameseTones(formattedStr);
+
+  formattedStr = formattedStr.toUpperCase();
+
+  return formattedStr;
+};
+
+export const generateCombinationsVariant = (variations: Variant[]) => {
+  let combinations = [{}];
+
+  variations.forEach((variation) => {
+    const newCombinations = [];
+
+    combinations.forEach((combination) => {
+      variation.options.forEach((option) => {
+        const newCombination = {
+          ...combination,
+          [variation.name]: option,
+        };
+        newCombinations.push(newCombination);
+      });
+    });
+
+    combinations = newCombinations;
+  });
+
+  return combinations;
+};
+
+export const generateSKUCode = (combination) => {
+  return Object.values(combination).join('-').toUpperCase();
 };

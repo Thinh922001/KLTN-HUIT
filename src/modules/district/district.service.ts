@@ -16,6 +16,7 @@ export class DistrictService {
       .createQueryBuilder(this.entityAlias)
       .leftJoinAndSelect(`${this.entityAlias}.province`, this.provinceAlias)
       .where(`${this.provinceAlias}.id = :id`, { id })
+      .cache(true)
       .select([`${this.entityAlias}.id`, `${this.entityAlias}.name`])
       .getMany();
   }

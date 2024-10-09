@@ -14,10 +14,11 @@ export class BreadcrumbService {
 
   public async getBreadCrumb({ type, id }: GetBreadCrumbDto) {
     if (type === 'CATE') {
-      const categoryPromise = this.cateRepo.findOne({ where: { id } });
+      const categoryPromise = this.cateRepo.findOne({ where: { id }, cache: true });
       const productCountPromise = this.productRepo
         .createQueryBuilder(this.productAlias)
         .where(`${this.productAlias}.cate_id = :id`, { id })
+        .cache(true)
         .getCount();
 
       const [cate, productCount] = await Promise.all([categoryPromise, productCountPromise]);

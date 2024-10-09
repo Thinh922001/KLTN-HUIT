@@ -11,6 +11,7 @@ import { ProductModule } from './modules/product/product.module';
 import { CategoryModule } from './modules/category/category.module';
 import { BrandModule } from './modules/brand/brand.module';
 import { BreadcrumbModule } from './modules/breadcrumb/breadcrumb.module';
+import { ProductDetailModule } from './modules/product-detail/product-detail.module';
 import mySql from './db/mySql';
 
 @Module({
@@ -35,6 +36,7 @@ import mySql from './db/mySql';
     CategoryModule,
     BrandModule,
     BreadcrumbModule,
+    ProductDetailModule,
   ],
   controllers: [],
   providers: [],
