@@ -33,9 +33,9 @@ export const applyPagination = async <T>(
   take: number,
   skip: number
 ): Promise<{ data: T[]; paging: PagingDto }> => {
-  const itemCount = await query.getCount();
   query.take(take).skip(skip);
-  const { entities } = await query.getRawAndEntities();
+  const [entities, itemCount] = await query.getManyAndCount();
+
   const paging = new PagingDto(itemCount, { take, skip });
   return {
     data: entities,

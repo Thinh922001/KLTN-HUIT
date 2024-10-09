@@ -21,15 +21,13 @@ export class ProductService {
   public async getProductByCate({ cateId, take, skip, orderBy, filters }: GetCateDto) {
     const query = this.productRepo
       .createQueryBuilder(this.entityAlias)
-      .leftJoinAndSelect(
+      .innerJoinAndSelect(
         `${this.entityAlias}.labelProducts`,
         this.labelProductAlias,
         `${this.labelProductAlias}.product_id = ${this.entityAlias}.id`
       )
-      .leftJoinAndSelect(`${this.labelProductAlias}.label`, this.labelAlias)
+      .innerJoinAndSelect(`${this.labelProductAlias}.label`, this.labelAlias)
       .where(`${this.entityAlias}.cate_id = :cateId`, { cateId })
-      .take(take)
-      .skip(skip)
       .select([
         `${this.entityAlias}.id`,
         `${this.entityAlias}.productName`,
