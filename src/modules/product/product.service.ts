@@ -30,6 +30,7 @@ export class ProductService {
       .where(`${this.entityAlias}.cate_id = :cateId`, { cateId })
       .select([
         `${this.entityAlias}.id`,
+        `${this.entityAlias}.createdAt`,
         `${this.entityAlias}.productName`,
         `${this.entityAlias}.img`,
         `${this.entityAlias}.textOnlineType`,
