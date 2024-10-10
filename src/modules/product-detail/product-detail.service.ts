@@ -139,6 +139,7 @@ export class ProductDetailService {
       .createQueryBuilder(this.productDeAlias)
       .leftJoinAndSelect(`${this.productDeAlias}.productDetailsImg`, this.productDetailImgAs)
       .where(`${this.productDeAlias}.product_id = :productId`, { productId })
+      .cache(true)
       .select([
         `${this.productDeAlias}.id`,
         `${this.productDeAlias}.stock`,
