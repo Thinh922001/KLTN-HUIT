@@ -9,5 +9,5 @@ export class GetDetailProduct {
   productId: number;
 
   @IsOptional()
-  variation: IVariant[];
+  variation: IVariant;
 }

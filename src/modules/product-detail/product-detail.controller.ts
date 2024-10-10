@@ -14,4 +14,10 @@ export class ProductDetailController extends BaseController {
     const data = await this.productDetailService.getDetailProduct(params);
     return this.response(data);
   }
+
+  @Get('variant')
+  async getProductDetailVariant(@Query() params: GetDetailProduct) {
+    const data = await this.productDetailService.getProductDetailFromVariant(params);
+    return this.response(data);
+  }
 }

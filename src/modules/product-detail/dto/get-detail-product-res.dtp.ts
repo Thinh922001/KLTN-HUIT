@@ -6,16 +6,18 @@ export class GetDetailProductRes {
   id: number;
   title?: string;
   subImg?: string[];
-  labels: ILabel[] = [];
+  labels?: ILabel[];
   discount?: IDisCount;
   price: number;
+  stock: number;
   variation?: Variant[];
   specifications?: ISpecifications[];
 
   constructor(productDetail: ProductDetailsEntity, product?: ProductsEntity) {
-    const { id, price, oldPrice, discountPercent, productDetailsImg } = productDetail;
+    const { id, price, oldPrice, discountPercent, productDetailsImg, stock } = productDetail;
     this.id = id;
     this.price = price;
+    this.stock = stock;
     this.discount = oldPrice && discountPercent ? { OldPrice: oldPrice, discountPercent } : undefined;
     this.subImg = productDetailsImg?.map((e) => e.img) || [];
 
@@ -28,7 +30,7 @@ export class GetDetailProductRes {
         labelProducts?.map<ILabel>((e) => ({
           label: e.label.type,
           text: e.label.text,
-        })) || [];
+        })) || undefined;
     }
   }
 }

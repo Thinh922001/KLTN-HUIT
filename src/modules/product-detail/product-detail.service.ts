@@ -133,4 +133,35 @@ export class ProductDetailService {
     const productDetail = await productDetailQuery.getOne();
     return new GetDetailProductRes(productDetail, product);
   }
+
+  async getProductDetailFromVariant({ variation, productId }: GetDetailProduct) {
+    const query = this.productDetailRepo
+      .createQueryBuilder(this.productDeAlias)
+      .leftJoinAndSelect(`${this.productDeAlias}.productDetailsImg`, this.productDetailImgAs)
+      .where(`${this.productDeAlias}.product_id = :productId`, { productId })
+      .select([
+        `${this.productDeAlias}.id`,
+        `${this.productDeAlias}.stock`,
+        `${this.productDeAlias}.variationDetails`,
+        `${this.productDeAlias}.price`,
+        `${this.productDeAlias}.oldPrice`,
+        `${this.productDeAlias}.discountPercent`,
+        `${this.productDetailImgAs}.id`,
+        `${this.productDetailImgAs}.img`,
+      ]);
+
+    const variant = convertAnyTo<IVariant>(variation);
+
+    const conditions = Object.entries(variant).map(
+      ([key, value]) => `JSON_UNQUOTE(JSON_EXTRACT(${this.productDeAlias}.variationDetails, '$.${key}')) = :${key}`
+    );
+
+    if (conditions.length > 0) {
+      query.andWhere(conditions.join(' AND '), variant);
+    }
+
+    const productDetailEntity = await query.getOne();
+
+    return new GetDetailProductRes(productDetailEntity);
+  }
 }
