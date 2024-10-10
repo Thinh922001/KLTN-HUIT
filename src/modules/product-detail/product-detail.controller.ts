@@ -11,6 +11,7 @@ export class ProductDetailController extends BaseController {
 
   @Get()
   async getDetailProduct(@Query() params: GetDetailProduct) {
-    return this.response([]);
+    const data = await this.productDetailService.getDetailProduct(params);
+    return this.response(data);
   }
 }

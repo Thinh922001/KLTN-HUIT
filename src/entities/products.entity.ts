@@ -3,7 +3,7 @@ import { AbstractProduct } from '../vendors/base/abtract-product.entity';
 import { LabelProductEntity } from './label-product.entity';
 import { BrandEntity } from './brand.entity';
 import { CateEntity } from './category.entity';
-import { Variant } from '../vendors/base/type';
+import { ISpecifications, Variant } from '../vendors/base/type';
 import { ProductDetailsEntity } from './product-details.entity';
 import { GiftEntity } from './gift.entity';
 
@@ -62,7 +62,7 @@ export class ProductsEntity extends AbstractProduct {
     nullable: true,
     name: 'specifications',
   })
-  specifications: any;
+  specifications: ISpecifications[];
 
   @Column({
     type: 'int',
