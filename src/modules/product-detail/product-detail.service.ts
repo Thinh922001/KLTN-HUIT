@@ -169,14 +169,14 @@ export class ProductDetailService {
     return new GetDetailProductRes(productDetailEntity);
   }
 
-  async addImgProductDetail({ productDetailId }: AddImgDto, uploadResult: UploadApiResponse[]) {
+  async addImgProductDetail(id: number, uploadResult: UploadApiResponse[]) {
     if (uploadResult.length > 0) {
       const productImg = uploadResult.map((e) =>
         this.productImg.create({
           publicId: e.public_id,
           img: e.url,
           productDetails: {
-            id: productDetailId,
+            id: id,
           },
         })
       );

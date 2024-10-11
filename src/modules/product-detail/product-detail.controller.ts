@@ -35,10 +35,10 @@ export class ProductDetailController extends BaseController {
 
   @Post('upload')
   @UseInterceptors(FilesInterceptor('img'))
-  async uploadImg(@UploadedFiles() files: Express.Multer.File[], @Body() body: AddImgDto) {
+  async uploadImg(@UploadedFiles() files: Express.Multer.File[], @Body('productIdDetail') productIdDetail: number) {
     const uploadPromises = files.map((file) => this.cloudinaryService.uploadImage(file, 'KLTN/product-details'));
     const uploadResults = await Promise.all(uploadPromises);
-    const result = await this.productDetailService.addImgProductDetail(body, uploadResults);
+    const result = await this.productDetailService.addImgProductDetail(productIdDetail, uploadResults);
     return this.response(result);
   }
 }
