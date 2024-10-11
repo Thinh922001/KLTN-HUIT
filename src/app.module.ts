@@ -12,6 +12,7 @@ import { CategoryModule } from './modules/category/category.module';
 import { BrandModule } from './modules/brand/brand.module';
 import { BreadcrumbModule } from './modules/breadcrumb/breadcrumb.module';
 import { ProductDetailModule } from './modules/product-detail/product-detail.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import mySql from './db/mySql';
 
 @Module({
@@ -37,6 +38,7 @@ import mySql from './db/mySql';
     BrandModule,
     BreadcrumbModule,
     ProductDetailModule,
+    CloudinaryModule,
   ],
   controllers: [],
   providers: [],

@@ -12,6 +12,14 @@ export class ProductDetailsImgEntity extends AbstractEntity {
   })
   img: string;
 
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    name: 'public_id',
+  })
+  publicId: string;
+
   @ManyToOne(() => ProductDetailsEntity, (product_details) => product_details.productDetailsImg, {
     eager: true,
     nullable: false,

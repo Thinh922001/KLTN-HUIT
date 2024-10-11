@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ProductDetailsRepository, ProductRepository } from '../../repositories';
+import { ProductDetailsRepository, ProductImgRepository, ProductRepository } from '../../repositories';
 import { convertAnyTo, formatString, generateCombinationsVariant, generateSKUCode } from '../../utils/utils';
 import { GetDetailProduct, IVariant } from './dto/get-detail-product.dto';
 import {
@@ -11,6 +11,8 @@ import {
   ProductsEntity,
 } from '../../entities';
 import { GetDetailProductRes } from './dto/get-detail-product-res.dtp';
+import { AddImgDto } from './dto/add-img-prduct-detail.dto';
+import { UploadApiResponse } from 'cloudinary';
 
 @Injectable()
 export class ProductDetailService {
@@ -22,7 +24,8 @@ export class ProductDetailService {
   labelAlias: string;
   constructor(
     private readonly productDetailRepo: ProductDetailsRepository,
-    private readonly productRepo: ProductRepository
+    private readonly productRepo: ProductRepository,
+    private readonly productImg: ProductImgRepository
   ) {
     this.productAlias = ProductsEntity.name;
     this.cateAlias = CateEntity.name;
@@ -33,7 +36,7 @@ export class ProductDetailService {
   }
 
   async generateSPU() {
-    const product = await this.productRepo.findOne({ where: { id: 1 } });
+    const product = await this.productRepo.findOne({ where: { id: 2 } });
 
     const { variants, product_code, price, oldPrice, discountPercent, id } = product;
 
@@ -164,5 +167,21 @@ export class ProductDetailService {
     const productDetailEntity = await query.getOne();
 
     return new GetDetailProductRes(productDetailEntity);
+  }
+
+  async addImgProductDetail({ productDetailId }: AddImgDto, uploadResult: UploadApiResponse[]) {
+    if (uploadResult.length > 0) {
+      const productImg = uploadResult.map((e) =>
+        this.productImg.create({
+          publicId: e.public_id,
+          img: e.url,
+          productDetails: {
+            id: productDetailId,
+          },
+        })
+      );
+
+      return await this.productImg.save(productImg);
+    }
   }
 }
