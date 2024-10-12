@@ -1,6 +1,7 @@
 import { ISpecifications, Variant } from '../../../vendors/base/type';
 import { IDisCount, ILabel } from '../../../modules/product/dto/product.dto';
 import { ProductDetailsEntity, ProductsEntity } from '../../../entities';
+import { convertHttpToHttps } from '../../../utils/utils';
 
 export class GetDetailProductRes {
   id: number;
@@ -19,7 +20,7 @@ export class GetDetailProductRes {
     this.price = price;
     this.stock = stock;
     this.discount = oldPrice && discountPercent ? { OldPrice: oldPrice, discountPercent } : undefined;
-    this.subImg = productDetailsImg?.map((e) => e.img) || [];
+    this.subImg = productDetailsImg?.map((e) => convertHttpToHttps(e.img)) || [];
 
     if (product) {
       const { specifications, variants, cate, productName, labelProducts } = product;
