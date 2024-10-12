@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumberString } from 'class-validator';
 
 export class GetBreadCrumbDto {
   @IsString()
   @IsNotEmpty()
   type: 'CATE' | 'DESC';
 
-  @IsNumber()
+  @IsNumberString()
   @IsNotEmpty()
   id: number;
 }

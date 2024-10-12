@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsNumberString } from 'class-validator';
 import { PagerDto } from '../../../vendors/dto/pager.dto';
 
 export interface IOrderBy {
@@ -10,7 +10,7 @@ export interface ISearch {
 }
 export class GetCateDto extends PagerDto {
   @IsNotEmpty()
-  @IsNumber()
+  @IsNumberString()
   cateId: number;
 
   @IsOptional()
