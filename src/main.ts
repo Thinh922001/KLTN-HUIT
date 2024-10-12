@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import compression from 'compression';
 import { initializeTransactionalContext } from 'typeorm-transactional';
 import helmet from 'helmet';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   initializeTransactionalContext();
@@ -10,6 +11,7 @@ async function bootstrap() {
   app.enableCors();
   app.use(compression());
   app.use(helmet());
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

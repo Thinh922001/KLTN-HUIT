@@ -35,8 +35,8 @@ export class ProductDetailService {
     this.productDetailImgAs = ProductDetailsImgEntity.name;
   }
 
-  async generateSPU() {
-    const product = await this.productRepo.findOne({ where: { id: 2 } });
+  async generateSPU(idProduct: number) {
+    const product = await this.productRepo.findOne({ where: { id: idProduct } });
 
     const { variants, product_code, price, oldPrice, discountPercent, id } = product;
 

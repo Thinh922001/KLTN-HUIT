@@ -5,6 +5,7 @@ import { GetDetailProduct } from './dto/get-detail-product.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { AddImgDto } from './dto/add-img-prduct-detail.dto';
+import { GenSkuDto } from './dto/gen-sku.dto';
 
 @Controller('product-detail')
 export class ProductDetailController extends BaseController {
@@ -28,8 +29,8 @@ export class ProductDetailController extends BaseController {
   }
 
   @Get('create')
-  async createProductDetail() {
-    //  await this.productDetailService.generateSPU();
+  async createProductDetail(@Query() params: GenSkuDto) {
+    await this.productDetailService.generateSPU(params.productId);
     return this.response([]);
   }
 
