@@ -43,20 +43,20 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsNumber()
+  @Min(0, { message: 'starRate must be at least 0' })
+  @Max(5, { message: 'starRate must be no more than 5' })
   starRate?: number;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsNumber({ allowInfinity: false, allowNaN: false }, { message: 'price must be a valid number' })
   price: number;
 
   @IsOptional()
   @IsNumber({ allowInfinity: false, allowNaN: false }, { message: 'discountPercent must be a valid number' })
-  @Min(0, { message: 'discountPercent must be at least 0' })
-  @Max(5, { message: 'discountPercent must be no more than 5' })
   discountPercent?: number;
 
   @IsOptional()
-  @IsNumber({ allowInfinity: false, allowNaN: false }, { message: 'discountPercent must be a valid number' })
+  @IsNumber({ allowInfinity: false, allowNaN: false }, { message: 'oldPrice must be a valid number' })
   oldPrice?: number;
 
   @IsNotEmpty()
