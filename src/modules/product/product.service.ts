@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BrandRepository, CateRepository, ProductRepository } from '../../repositories';
+import { BrandRepository, CateRepository, LabelProductRepository, ProductRepository } from '../../repositories';
 import { CateEntity, LabelEntity, LabelProductEntity, ProductsEntity } from '../../entities';
 import { GetCateDto, IOrderBy, ISearch } from '../category/dto/cate.dto';
 import { ProductDto } from './dto/product.dto';
@@ -7,6 +7,8 @@ import { applyPagination, convertAnyTo } from '../../utils/utils';
 import { SelectQueryBuilder } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductDetailService } from '../product-detail/product-detail.service';
+import { LabelsService } from '../labels/labels.service';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class ProductService {
@@ -18,7 +20,9 @@ export class ProductService {
     private readonly productRepo: ProductRepository,
     private readonly brandRepo: BrandRepository,
     private readonly cateRepo: CateRepository,
-    private readonly productDetailService: ProductDetailService
+    private readonly labelProductRepo: LabelProductRepository,
+    private readonly productDetailService: ProductDetailService,
+    private readonly labelService: LabelsService
   ) {
     this.entityAlias = ProductsEntity.name;
     this.cateAlias = CateEntity.name;
@@ -104,6 +108,7 @@ export class ProductService {
     }
   }
 
+  @Transactional()
   public async createProduct(createProductDto: CreateProductDto) {
     const {
       productName,
@@ -118,6 +123,7 @@ export class ProductService {
       oldPrice,
       cateId,
       brandId,
+      labelsId,
     } = createProductDto;
 
     const [brand, cate] = await Promise.all([
@@ -147,9 +153,16 @@ export class ProductService {
       cate: cate,
     });
 
+    const checkLabels = await this.labelService.checkLabels(labelsId);
+
+    if (!checkLabels) throw new Error('Labels not found');
+
     const saveProductEntity = await this.productRepo.save(productEntity);
 
-    const saveProductDetailEntity = await this.productDetailService.generateSPU(saveProductEntity);
+    const [saveProductDetailEntity, saveLabelsProduct] = await Promise.all([
+      this.productDetailService.generateSPU(saveProductEntity),
+      this.createLabelProduct(saveProductEntity.id, labelsId),
+    ]);
 
     return {
       product: saveProductEntity,
@@ -170,5 +183,17 @@ export class ProductService {
   public async updateProduct(id: number, updateData: Partial<ProductsEntity>): Promise<ProductsEntity> {
     await this.productRepo.update(id, updateData);
     return await this.productRepo.findOne({ where: { id } });
+  }
+
+  public async createLabelProduct(productId: number, labelsId: number[]) {
+    const labelProducts = labelsId.map((e) =>
+      this.labelProductRepo.create({
+        product: { id: productId },
+        label: {
+          id: e,
+        },
+      })
+    );
+    return await this.labelProductRepo.save(labelProducts);
   }
 }

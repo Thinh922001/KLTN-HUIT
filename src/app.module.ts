@@ -13,6 +13,7 @@ import { BrandModule } from './modules/brand/brand.module';
 import { BreadcrumbModule } from './modules/breadcrumb/breadcrumb.module';
 import { ProductDetailModule } from './modules/product-detail/product-detail.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { LabelsModule } from './modules/labels/labels.module';
 import mySql from './db/mySql';
 
 @Module({
@@ -39,8 +40,8 @@ import mySql from './db/mySql';
     BreadcrumbModule,
     ProductDetailModule,
     CloudinaryModule,
+    LabelsModule,
   ],
   controllers: [],
-  providers: [],
 })
 export class AppModule {}

@@ -4,12 +4,15 @@ import { ProductService } from './product.service';
 import {
   BrandRepository,
   CateRepository,
+  LabelProductRepository,
+  LabelRepository,
   ProductDetailsRepository,
   ProductImgRepository,
   ProductRepository,
 } from '../../repositories';
 import { ProductDetailService } from '../product-detail/product-detail.service';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { LabelsService } from '../labels/labels.service';
 
 @Module({
   controllers: [ProductController],
@@ -21,6 +24,9 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
     ProductDetailsRepository,
     ProductDetailService,
     ProductImgRepository,
+    LabelsService,
+    LabelRepository,
+    LabelProductRepository,
   ],
   imports: [CloudinaryModule],
 })

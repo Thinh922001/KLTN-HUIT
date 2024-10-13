@@ -29,6 +29,10 @@ export class CreateProductDto {
   tabs?: string[];
 
   @IsOptional()
+  @IsArray()
+  labelsId?: number[];
+
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => Variant)
   variants?: Variant[];

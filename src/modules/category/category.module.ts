@@ -5,11 +5,14 @@ import { ProductService } from '../product/product.service';
 import {
   BrandRepository,
   CateRepository,
+  LabelProductRepository,
+  LabelRepository,
   ProductDetailsRepository,
   ProductImgRepository,
   ProductRepository,
 } from '../../repositories';
 import { ProductDetailService } from '../product-detail/product-detail.service';
+import { LabelsService } from '../labels/labels.service';
 
 @Module({
   controllers: [CategoryController],
@@ -22,6 +25,9 @@ import { ProductDetailService } from '../product-detail/product-detail.service';
     ProductDetailService,
     ProductDetailsRepository,
     ProductImgRepository,
+    LabelsService,
+    LabelRepository,
+    LabelProductRepository,
   ],
 })
 export class CategoryModule {}
