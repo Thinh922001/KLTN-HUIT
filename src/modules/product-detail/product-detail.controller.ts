@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { BaseController } from '../../vendors/base/base-comtroller';
 import { ProductDetailService } from './product-detail.service';
 import { GetDetailProduct } from './dto/get-detail-product.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
-import { AddImgDto } from './dto/add-img-prduct-detail.dto';
 import { GenSkuDto } from './dto/gen-sku.dto';
+import { ApiKeyGuard } from '../../vendors/guards/Api-key/api-key.guard';
 
 @Controller('product-detail')
 export class ProductDetailController extends BaseController {
@@ -35,6 +35,7 @@ export class ProductDetailController extends BaseController {
   }
 
   @Post('upload')
+  @UseGuards(ApiKeyGuard)
   @UseInterceptors(FilesInterceptor('img'))
   async uploadImg(@UploadedFiles() files: Express.Multer.File[], @Body('productIdDetail') productIdDetail: number) {
     const uploadPromises = files.map((file) => this.cloudinaryService.uploadImage(file, 'KLTN/product-details'));

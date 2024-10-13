@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { BaseController } from '../../vendors/base/base-comtroller';
 import { ProductService } from '../product/product.service';
 import { GetCateDto } from './dto/cate.dto';
 import { CategoryService } from './category.service';
 import { CreateCateDto } from './dto/create-cate.dto';
+import { ApiKeyGuard } from '../../vendors/guards/Api-key/api-key.guard';
 
 @Controller('category')
 export class CategoryController extends BaseController {
@@ -18,6 +19,7 @@ export class CategoryController extends BaseController {
   }
 
   @Post()
+  @UseGuards(ApiKeyGuard)
   async createCate(@Body() body: CreateCateDto) {
     const data = await this.cateService.createCate(body);
     return this.response(data);
