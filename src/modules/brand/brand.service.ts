@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BrandRepository } from '../../repositories';
 import { GetBrandByCateDto } from './dto/get-brand-cate.dto';
 import { BrandEntity, ProductsEntity } from '../../entities';
+import { CreateBrandDto } from './dto/create-brand.dto';
 
 @Injectable()
 export class BrandService {
@@ -22,5 +23,9 @@ export class BrandService {
       .getMany();
 
     return data;
+  }
+
+  public async createBrand({ name }: CreateBrandDto) {
+    return await this.brandRepo.save(this.brandRepo.create({ name }));
   }
 }

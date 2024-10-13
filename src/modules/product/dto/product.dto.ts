@@ -1,3 +1,4 @@
+import { convertHttpToHttps } from '../../../utils/utils';
 import { ProductsEntity } from '../../../entities';
 
 export enum ELabel {
@@ -46,7 +47,7 @@ export class ProductDto {
     } = entity;
 
     this.id = id;
-    this.img = img;
+    this.img = convertHttpToHttps(img);
     this.title = productName;
     this.txtOnline = textOnlineType;
     this.price = price;

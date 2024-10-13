@@ -30,7 +30,7 @@ export class ProductDetailController extends BaseController {
 
   @Get('create')
   async createProductDetail(@Query() params: GenSkuDto) {
-    await this.productDetailService.generateSPU(params.productId);
+    //  await this.productDetailService.generateSPU(params.productId);
     return this.response([]);
   }
 

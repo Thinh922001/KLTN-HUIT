@@ -35,31 +35,35 @@ export class ProductDetailService {
     this.productDetailImgAs = ProductDetailsImgEntity.name;
   }
 
-  async generateSPU(idProduct: number) {
-    const product = await this.productRepo.findOne({ where: { id: idProduct } });
-
+  async generateSPU(product: ProductsEntity) {
     const { variants, product_code, price, oldPrice, discountPercent, id } = product;
 
-    const combinations = generateCombinationsVariant(variants);
-
-    const productDetail = combinations.map((e) => {
-      const skuCode = formatString(`${product_code}-${generateSKUCode(e)}`);
-      return {
-        sku_code: skuCode,
-        price,
-        oldPrice,
-        discountPercent,
-        variationDetails: e,
-        stock: 50,
-        product: {
-          id: id,
-        },
-      };
+    const createProductDetail = (skuCode: string, variationDetails = null) => ({
+      sku_code: skuCode,
+      price,
+      oldPrice,
+      discountPercent,
+      variationDetails,
+      stock: 50,
+      product: {
+        id: id,
+      },
     });
 
-    const entity = this.productDetailRepo.create(productDetail);
+    let productDetails = [];
 
-    await this.productDetailRepo.save(entity);
+    if (variants?.length) {
+      const combinations = generateCombinationsVariant(variants);
+      productDetails = combinations.map((combination) => {
+        const skuCode = formatString(`${product_code}-${generateSKUCode(combination)}`);
+        return createProductDetail(skuCode, combination);
+      });
+    } else {
+      productDetails.push(createProductDetail(product_code));
+    }
+
+    const entity = this.productDetailRepo.create(productDetails);
+    return await this.productDetailRepo.save(entity);
   }
 
   async updateSpecProduct() {

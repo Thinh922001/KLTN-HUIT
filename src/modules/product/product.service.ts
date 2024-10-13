@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { ProductRepository } from '../../repositories';
+import { BrandRepository, CateRepository, ProductRepository } from '../../repositories';
 import { CateEntity, LabelEntity, LabelProductEntity, ProductsEntity } from '../../entities';
 import { GetCateDto, IOrderBy, ISearch } from '../category/dto/cate.dto';
 import { ProductDto } from './dto/product.dto';
 import { applyPagination, convertAnyTo } from '../../utils/utils';
 import { SelectQueryBuilder } from 'typeorm';
+import { CreateProductDto } from './dto/create-product.dto';
+import { ProductDetailService } from '../product-detail/product-detail.service';
 
 @Injectable()
 export class ProductService {
@@ -12,7 +14,12 @@ export class ProductService {
   cateAlias: string;
   labelProductAlias: string;
   labelAlias: string;
-  constructor(private readonly productRepo: ProductRepository) {
+  constructor(
+    private readonly productRepo: ProductRepository,
+    private readonly brandRepo: BrandRepository,
+    private readonly cateRepo: CateRepository,
+    private readonly productDetailService: ProductDetailService
+  ) {
     this.entityAlias = ProductsEntity.name;
     this.cateAlias = CateEntity.name;
     this.labelProductAlias = LabelProductEntity.name;
@@ -95,5 +102,73 @@ export class ProductService {
         query.andWhere(`${this.entityAlias}.brand_id IN (:...ids)`, { ids: brandFilter });
       }
     }
+  }
+
+  public async createProduct(createProductDto: CreateProductDto) {
+    const {
+      productName,
+      productCode,
+      textOnlineType,
+      tabs,
+      variants,
+      totalVote,
+      starRate,
+      price,
+      discountPercent,
+      oldPrice,
+      cateId,
+      brandId,
+    } = createProductDto;
+
+    const [brand, cate] = await Promise.all([
+      this.brandRepo.findOne({ where: { id: brandId } }),
+      this.cateRepo.findOne({ where: { id: cateId } }),
+    ]);
+
+    if (!brand) {
+      throw new Error('Brand not found');
+    }
+    if (!cate) {
+      throw new Error('Category not found');
+    }
+
+    const productEntity = this.productRepo.create({
+      productName,
+      product_code: productCode,
+      textOnlineType: textOnlineType || null,
+      tabs: tabs || [],
+      variants: variants || [],
+      totalVote: totalVote,
+      starRate: starRate,
+      price: price,
+      oldPrice: oldPrice,
+      discountPercent: discountPercent,
+      brand: brand,
+      cate: cate,
+    });
+
+    const saveProductEntity = await this.productRepo.save(productEntity);
+
+    const saveProductDetailEntity = await this.productDetailService.generateSPU(saveProductEntity);
+
+    return {
+      product: saveProductEntity,
+      productDetail: saveProductDetailEntity,
+    };
+  }
+
+  public async getProductById(productId: number) {
+    const product = await this.productRepo.findOne({
+      where: { id: productId },
+      select: ['id'],
+    });
+
+    if (!product) throw new Error('Product not found');
+    return product;
+  }
+
+  public async updateProduct(id: number, updateData: Partial<ProductsEntity>): Promise<ProductsEntity> {
+    await this.productRepo.update(id, updateData);
+    return await this.productRepo.findOne({ where: { id } });
   }
 }
