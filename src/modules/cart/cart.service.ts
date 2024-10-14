@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ProductDetailsRepository } from '../../repositories';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { ProductDetailsEntity, ProductsEntity } from '../../entities';
@@ -28,6 +28,10 @@ export class CartService {
         `${this.proDetailAlias}.stock`,
       ])
       .getOne();
+
+    if (!productDetail) {
+      throw new BadRequestException('Product not found');
+    }
 
     if (!productDetail.stock || productDetail.stock < 1) {
       throw new Error('Out of stock');
