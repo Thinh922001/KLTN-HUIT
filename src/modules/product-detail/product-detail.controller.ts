@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Query, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
-import { BaseController } from '../../vendors/base/base-comtroller';
+import { BaseController } from '../../vendors/base/base-controller';
 import { ProductDetailService } from './product-detail.service';
 import { GetDetailProduct } from './dto/get-detail-product.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';

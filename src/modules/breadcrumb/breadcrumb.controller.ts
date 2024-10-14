@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { GetBreadCrumbDto } from './dto/get-breadcrumb.dto';
 import { BreadcrumbService } from './breadcrumb.service';
-import { BaseController } from '../../vendors/base/base-comtroller';
+import { BaseController } from '../../vendors/base/base-controller';
 
 @Controller('breadcrumb')
 export class BreadcrumbController extends BaseController {

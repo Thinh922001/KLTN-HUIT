@@ -1,7 +1,7 @@
 import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { WardService } from './ward.service';
 import { FindOneParams } from './dto/ward.dto';
-import { BaseController } from '../../vendors/base/base-comtroller';
+import { BaseController } from '../../vendors/base/base-controller';
 
 @Controller('ward')
 export class WardController extends BaseController {

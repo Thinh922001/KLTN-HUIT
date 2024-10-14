@@ -1,6 +1,6 @@
 import { Body, Controller, Get } from '@nestjs/common';
 import { ProvinceService } from './province.service';
-import { BaseController } from '../../vendors/base/base-comtroller';
+import { BaseController } from '../../vendors/base/base-controller';
 
 @Controller('province')
 export class ProvinceController extends BaseController {

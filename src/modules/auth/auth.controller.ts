@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { LoginDto, RefreshTokenDto, RegisterDto } from './dto/auth.dto';
-import { BaseController } from '../../vendors/base/base-comtroller';
+import { BaseController } from '../../vendors/base/base-controller';
 import { AuthService } from './auth.service';
 import { UserAuthGuard } from '../../vendors/guards/user/jwt-user.guard';
 import { AuthUser } from '../../vendors/decorator/user.decorator';
@@ -17,7 +17,7 @@ export class AuthController extends BaseController {
     // const data = await this.authService.login(loginDto);
     return {
       hello: 'thinh huhuhihii',
-      raiwyApp : 'Hello'
+      raiwyApp: 'Hello',
     };
   }
 

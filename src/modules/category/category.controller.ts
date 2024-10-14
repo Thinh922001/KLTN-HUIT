@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
-import { BaseController } from '../../vendors/base/base-comtroller';
+import { BaseController } from '../../vendors/base/base-controller';
 import { ProductService } from '../product/product.service';
 import { GetCateDto } from './dto/cate.dto';
 import { CategoryService } from './category.service';

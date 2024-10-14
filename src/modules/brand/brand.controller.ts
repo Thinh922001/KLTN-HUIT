@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { GetBrandByCateDto } from './dto/get-brand-cate.dto';
 import { BrandService } from './brand.service';
-import { BaseController } from '../../vendors/base/base-comtroller';
+import { BaseController } from '../../vendors/base/base-controller';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { ApiKeyGuard } from '../../vendors/guards/Api-key/api-key.guard';
 
