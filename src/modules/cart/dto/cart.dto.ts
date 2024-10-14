@@ -7,6 +7,7 @@ export class CartDto {
   price: number;
   oldPrice: number;
   quantity: number;
+  color: string;
 
   constructor(productDetailEntity: ProductDetailsEntity) {
     this.productDetailId = productDetailEntity.id;
@@ -17,5 +18,6 @@ export class CartDto {
     this.price = Number(productDetailEntity.price);
     this.oldPrice = Number(productDetailEntity.oldPrice);
     this.quantity = 1;
+    this.color = String(productDetailEntity.variationDetails['color']) ?? '';
   }
 }
