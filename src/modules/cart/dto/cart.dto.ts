@@ -14,8 +14,8 @@ export class CartDto {
       this.img = productDetailEntity.product.img;
       this.productName = productDetailEntity.product.productName;
     }
-    this.price = productDetailEntity.price;
-    this.oldPrice = productDetailEntity.oldPrice;
+    this.price = Number(productDetailEntity.price);
+    this.oldPrice = Number(productDetailEntity.oldPrice);
     this.quantity = 1;
   }
 }
