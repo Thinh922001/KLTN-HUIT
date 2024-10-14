@@ -21,6 +21,7 @@ export class CartService {
       .select([
         `${this.productAlias}.id`,
         `${this.productAlias}.img`,
+        `${this.productAlias}.productName`,
         `${this.proDetailAlias}.id`,
         `${this.proDetailAlias}.price`,
         `${this.proDetailAlias}.oldPrice`,
