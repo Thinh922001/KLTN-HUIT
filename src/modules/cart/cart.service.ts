@@ -3,6 +3,7 @@ import { ProductDetailsRepository } from '../../repositories';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { ProductDetailsEntity, ProductsEntity } from '../../entities';
 import { CartDto } from './dto/cart.dto';
+import { CheckManualQuantity } from './dto/check-manual-quantity.entity';
 
 @Injectable()
 export class CartService {
@@ -35,9 +36,32 @@ export class CartService {
     }
 
     if (!productDetail.stock || productDetail.stock < 1) {
-      throw new Error('Out of stock');
+      throw new BadRequestException('Out of stock');
     }
 
     return new CartDto(productDetail);
+  }
+
+  public async checkManualQuantity({ cartItems }: CheckManualQuantity) {
+    const productDetailIds = cartItems.map((e) => e.productDetailId);
+
+    const productDetails = await this.productDetailRepo
+      .createQueryBuilder(this.proDetailAlias)
+      .where(`${this.proDetailAlias}.id IN (:...ids)`, { ids: productDetailIds })
+      .select([`${this.proDetailAlias}.id`, `${this.proDetailAlias}.stock`])
+      .getMany();
+
+    const cartItemsMap = new Map(cartItems.map((item) => [item.productDetailId, item.quantity]));
+
+    const productIdOutOfStock = productDetails
+      .filter((product) => {
+        const cartQuantity = cartItemsMap.get(String(product.id));
+        return product.stock < cartQuantity;
+      })
+      .map((product) => product.id);
+
+    return {
+      productIds: productIdOutOfStock,
+    };
   }
 }
