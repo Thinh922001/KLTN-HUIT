@@ -51,7 +51,9 @@ export class CartService {
       .select([`${this.proDetailAlias}.id`, `${this.proDetailAlias}.stock`])
       .getMany();
 
-    const cartItemsMap = new Map(cartItems.map((item) => [item.productDetailId, item.quantity]));
+    const cartItemsMap = new Map(cartItems.map((item) => [String(item.productDetailId), item.quantity]));
+
+    console.log(cartItemsMap);
 
     const productIdOutOfStock = productDetails
       .filter((product) => {
