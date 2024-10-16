@@ -48,6 +48,7 @@ export class CartService {
     const productDetails = await this.productDetailRepo
       .createQueryBuilder(this.proDetailAlias)
       .where(`${this.proDetailAlias}.id IN (:...ids)`, { ids: productDetailIds })
+      .cache(true, 10000)
       .select([`${this.proDetailAlias}.id`, `${this.proDetailAlias}.stock`])
       .getMany();
 
