@@ -18,6 +18,11 @@ export class CartDto {
     this.price = Number(productDetailEntity.price);
     this.oldPrice = Number(productDetailEntity.oldPrice);
     this.quantity = 1;
-    this.color = String(productDetailEntity.variationDetails['color']) ?? '';
+    this.color =
+      productDetailEntity.variationDetails &&
+      productDetailEntity.variationDetails['color'] !== undefined &&
+      productDetailEntity.variationDetails['color'] !== null
+        ? String(productDetailEntity.variationDetails['color'])
+        : '';
   }
 }

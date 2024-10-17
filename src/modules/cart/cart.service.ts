@@ -54,8 +54,6 @@ export class CartService {
 
     const cartItemsMap = new Map(cartItems.map((item) => [String(item.productDetailId), item.quantity]));
 
-    console.log(cartItemsMap);
-
     const productIdOutOfStock = productDetails
       .filter((product) => {
         const cartQuantity = cartItemsMap.get(String(product.id));
