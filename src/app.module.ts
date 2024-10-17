@@ -15,6 +15,7 @@ import { ProductDetailModule } from './modules/product-detail/product-detail.mod
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { LabelsModule } from './modules/labels/labels.module';
 import { CartModule } from './modules/cart/cart.module';
+import { SearchModule } from './modules/search/search.module';
 import mySql from './db/mySql';
 
 @Module({
@@ -43,6 +44,7 @@ import mySql from './db/mySql';
     CloudinaryModule,
     LabelsModule,
     CartModule,
+    SearchModule,
   ],
   controllers: [],
 })
