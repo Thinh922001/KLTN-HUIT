@@ -40,6 +40,7 @@ export class SearchService {
         `${this.productAlias}.img`,
         `${this.productAlias}.price`,
         `${this.productAlias}.oldPrice`,
+        `${this.productAlias}.discountPercent`,
       ])
       .orderBy(`${this.productAlias}.createdAt`, 'DESC')
       .take(take);
@@ -61,6 +62,7 @@ export class SearchService {
         `${this.productAlias}.img`,
         `${this.productAlias}.price`,
         `${this.productAlias}.oldPrice`,
+        `${this.productAlias}.discountPercent`,
       ])
       .orderBy(`${this.productAlias}.createdAt`, 'DESC')
       .take(take)

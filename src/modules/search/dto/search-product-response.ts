@@ -6,6 +6,7 @@ export class SearchProductResponse {
   img: string;
   price: number;
   oldPrice: number;
+  discountPercent: number;
 
   constructor(entity: ProductsEntity) {
     this.id = entity.id;
@@ -13,5 +14,6 @@ export class SearchProductResponse {
     this.img = entity.img;
     this.price = entity.price;
     this.oldPrice = entity.oldPrice;
+    this.discountPercent = entity.discountPercent;
   }
 }
