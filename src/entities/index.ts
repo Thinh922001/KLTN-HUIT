@@ -16,3 +16,7 @@ export * from './order.entity';
 export * from './product-details-img.entity';
 export * from './product-details.entity';
 export * from './products.entity';
+export * from './user-code.entity';
+export * from './user-comment-images.entity';
+export * from './user-comment.entity';
+export * from './user-reaction.entity';

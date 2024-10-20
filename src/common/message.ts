@@ -24,6 +24,13 @@ export enum ErrorMessage {
   INVALID_REFRESH_TOKEN = 'Invalid refresh token',
   EXPIRED_REFRESH_TOKEN = 'Refresh token expired',
   NOT_BEFORE = 'Current time is before the nbf claim.',
+  PHONE_NOT_EXIST = 'PHONE_NOT_EXIST',
+  NOT_EXPIRED = 'NOT_EXPIRED',
+  NEED_REQUEST_CODE = 'NEED_REQUEST_CODE',
+  EXPIRED_DATE = 'EXPIRED_DATE',
+  INVALID_CODE = 'INVALID_CODE',
+  PRODUCT_NOT_FOUND = 'PRODUCT_NOT_FOUND',
+  USER_NOT_FOUND = 'USER_NOT_FOUND',
 }
 
 export enum JsonWebTokenError {

@@ -5,6 +5,8 @@ import { AuthService } from './auth.service';
 import { UserAuthGuard } from '../../vendors/guards/user/jwt-user.guard';
 import { AuthUser } from '../../vendors/decorator/user.decorator';
 import { UserEntity } from '../../entities/user.entity';
+import { RequestCodeDto } from '../users/dto/auth.dto';
+import { VerifyCodeDto } from '../users/dto/verify-code.dto';
 
 @Controller('users/auth')
 export class AuthController extends BaseController {
@@ -38,5 +40,17 @@ export class AuthController extends BaseController {
   async logout(@AuthUser() user: UserEntity) {
     const data = await this.authService.logout(user);
     return this.response({});
+  }
+
+  @Post('request_code')
+  async requestCode(@Body() body: RequestCodeDto) {
+    const data = await this.authService.requestCode(body);
+    return this.response([]);
+  }
+
+  @Post('verify_code')
+  async verifyCode(@Body() body: VerifyCodeDto) {
+    const data = await this.authService.verifyCode(body);
+    return this.response(data);
   }
 }

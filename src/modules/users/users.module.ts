@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '../../entities/user.entity';
+import { UserCodeRepository } from '../../repositories';
 import { UsersRepository } from '../../repositories/user.repositories';
-import { JwtModule } from '@nestjs/jwt';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
+import { SnsService } from '../sns/sns.service';
 
 @Module({
   imports: [
@@ -14,7 +16,7 @@ import { JwtModule } from '@nestjs/jwt';
       signOptions: { expiresIn: parseInt(process.env.JWT_EXPIRE_TIME, 10) },
     }),
   ],
-  providers: [UsersService, UsersRepository],
+  providers: [UsersService, UsersRepository, UserCodeRepository, SnsService],
   controllers: [UsersController],
   exports: [UsersService],
 })

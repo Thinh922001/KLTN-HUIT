@@ -3,6 +3,8 @@ import { UsersService } from '../users/users.service';
 import { LoginDto, RefreshTokenDto, RegisterDto } from './dto/auth.dto';
 import { UserDto } from '../users/dto/user.dto';
 import { UserEntity } from 'src/entities/user.entity';
+import { RequestCodeDto } from '../users/dto/auth.dto';
+import { VerifyCodeDto } from '../users/dto/verify-code.dto';
 
 @Injectable()
 export class AuthService {
@@ -39,4 +41,12 @@ export class AuthService {
   }
 
   /* Only test import data */
+
+  async requestCode(body: RequestCodeDto) {
+    return await this.userService.requestCode(body);
+  }
+
+  async verifyCode(body: VerifyCodeDto) {
+    return await this.userService.verifyCode(body);
+  }
 }

@@ -97,3 +97,16 @@ export const convertHttpToHttps = (url) => {
   }
   return url;
 };
+
+export const generateRandomCode = (): string => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+export const sendOTPMsg = (code: string): string => {
+  if (!code) {
+    throw new Error('Mã OTP không hợp lệ');
+  }
+
+  const msg = `Mã OTP của bạn là ${code}. Mã có hiệu lực trong 1 phút. Vui lòng không chia sẻ mã này với người khác.`;
+  return msg;
+};

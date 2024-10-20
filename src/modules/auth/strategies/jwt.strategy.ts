@@ -11,7 +11,7 @@ export class UserJwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.USER_JWT_ACCESS_KEY,
+      secretOrKey: process.env.JWT_SECRET_KEY,
       passReqToCallback: true,
     });
   }
@@ -20,7 +20,7 @@ export class UserJwtStrategy extends PassportStrategy(Strategy, 'user-jwt') {
     let accessToken = req?.headers.authorization;
     accessToken = accessToken.replace('Bearer ', '');
     const data = this.jwtService.verify(accessToken, {
-      secret: process.env.USER_JWT_ACCESS_KEY,
+      secret: process.env.JWT_SECRET_KEY,
       ignoreExpiration: false,
     });
     if (_.isNil(data)) {

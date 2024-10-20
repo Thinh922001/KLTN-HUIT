@@ -5,14 +5,31 @@ import { AUTH_TYPE } from '../../common/constaints';
 import { BadRequestException, UnauthorizedException } from '../../vendors/exceptions/errors.exception';
 import { ErrorMessage } from '../../common/message';
 import { UserEntity } from '../../entities/user.entity';
-import { saltHasPassword } from '../../utils/utils';
+import { generateRandomCode, saltHasPassword, sendOTPMsg } from '../../utils/utils';
 import { compareSync, hash } from 'bcrypt';
 import moment from 'moment';
 import { JwtService } from '@nestjs/jwt';
+import { RequestCodeDto } from './dto/auth.dto';
+import { UserCodeRepository } from '../../repositories';
+import { UserCodeEntity } from '../../entities';
+import { compareDates, getAdjustedTimeWithTimeZone } from '../../utils/date';
+import { Transactional } from 'typeorm-transactional';
+import { SnsService } from '../sns/sns.service';
+import { VerifyCodeDto } from './dto/verify-code.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly userRepo: UsersRepository, private jwtService: JwtService) {}
+  userAlias: string;
+  userCodeAlias: string;
+  constructor(
+    private readonly userRepo: UsersRepository,
+    private readonly userCodeRepo: UserCodeRepository,
+    private readonly snsService: SnsService,
+    private jwtService: JwtService
+  ) {
+    this.userAlias = UserEntity.name;
+    this.userCodeAlias = UserCodeEntity.name;
+  }
   async register({ email, password }: RegisterDto) {
     // check user
     const user = await this.findByEmail(email);
@@ -73,7 +90,7 @@ export class UsersService {
     );
   }
 
-  createAuthToken(payload: { id: number; email: string }): AuthData {
+  createAuthToken(payload: { id: number }): AuthData {
     const { accessToken, expired } = this.generateAccessToken(payload);
     const { refreshToken } = this.generateRefreshToken(payload);
 
@@ -81,7 +98,7 @@ export class UsersService {
   }
 
   generateRefreshToken(payload: any) {
-    const expired: string = moment().second(parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRE_TIME)).toISOString();
+    const expired: string = moment().second(parseInt(process.env.USER_JWT_REFRESH_TOKEN_EXPIRE_TIME)).toISOString();
     const refreshToken = this.jwtService.sign(payload, {
       secret: process.env.USER_JWT_REFRESH_KEY,
       expiresIn: parseInt(process.env.USER_JWT_REFRESH_TOKEN_EXPIRE_TIME),
@@ -90,10 +107,10 @@ export class UsersService {
   }
 
   generateAccessToken(payload: any) {
-    const expired: string = moment().second(parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRE_TIME)).toISOString();
+    const expired: string = moment().second(parseInt(process.env.JWT_EXPIRE_TIME)).toISOString();
     const accessToken = this.jwtService.sign(payload, {
-      secret: process.env.USER_JWT_ACCESS_KEY,
-      expiresIn: parseInt(process.env.USER_JWT_ACCESS_TOKEN_EXPIRE_TIME),
+      secret: process.env.JWT_SECRET_KEY,
+      expiresIn: parseInt(process.env.JWT_EXPIRE_TIME),
     });
     return { accessToken, expired };
   }
@@ -109,9 +126,9 @@ export class UsersService {
         throw new UnauthorizedException(ErrorMessage.EXPIRED_TOKEN);
       }
 
-      const { id, email } = data;
+      const { id } = data;
 
-      const authToken = this.createAuthToken({ id: id, email });
+      const authToken = this.createAuthToken({ id: id });
 
       return {
         ...authToken,
@@ -120,5 +137,84 @@ export class UsersService {
     } catch (error) {
       throw new UnauthorizedException(ErrorMessage.EXPIRED_TOKEN);
     }
+  }
+
+  @Transactional()
+  async requestCode({ phone }: RequestCodeDto) {
+    const userWithCode = await this.userRepo
+      .createQueryBuilder(this.userAlias)
+      .leftJoinAndSelect(`${this.userAlias}.userCode`, this.userCodeAlias)
+      .where(`${this.userAlias}.phone = :phone`, { phone })
+      .select([`${this.userAlias}.id`, `${this.userCodeAlias}.id`, `${this.userCodeAlias}.expiration_date`])
+      .getOne();
+
+    if (!userWithCode) {
+      throw new BadRequestException(ErrorMessage.PHONE_NOT_EXIST);
+    }
+
+    const code = generateRandomCode();
+    let userCode = userWithCode?.userCode;
+
+    const currentDate = new Date(getAdjustedTimeWithTimeZone());
+
+    if (userCode) {
+      const expirationDate = userCode.expiration_date;
+
+      if (compareDates(expirationDate, currentDate) === 1) {
+        throw new BadRequestException(ErrorMessage.NOT_EXPIRED);
+      }
+
+      userCode.code = code;
+    } else {
+      userCode = new UserCodeEntity();
+      userCode.user = { id: userWithCode.id } as UserEntity;
+      userCode.code = code;
+    }
+
+    await this.userCodeRepo.save(userCode);
+
+    return [];
+  }
+
+  @Transactional()
+  async verifyCode({ code, phone }: VerifyCodeDto) {
+    const userWithCode = await this.userRepo
+      .createQueryBuilder(this.userAlias)
+      .leftJoinAndSelect(`${this.userAlias}.userCode`, this.userCodeAlias)
+      .where(`${this.userAlias}.phone = :phone`, { phone })
+      .select([
+        `${this.userAlias}.id`,
+        `${this.userCodeAlias}.id`,
+        `${this.userCodeAlias}.expiration_date`,
+        `${this.userCodeAlias}.code`,
+      ])
+      .getOne();
+
+    if (!userWithCode) {
+      throw new BadRequestException(ErrorMessage.PHONE_NOT_EXIST);
+    }
+
+    if (!userWithCode?.userCode) {
+      throw new BadRequestException(ErrorMessage.NEED_REQUEST_CODE);
+    }
+
+    if (userWithCode.userCode.code != code) {
+      throw new BadRequestException(ErrorMessage.INVALID_CODE);
+    }
+
+    const currentDate = new Date(getAdjustedTimeWithTimeZone());
+
+    if (compareDates(userWithCode.userCode.expiration_date, currentDate) === -1) {
+      throw new BadRequestException(ErrorMessage.EXPIRED_DATE);
+    }
+
+    const auth = this.createAuthToken({ id: userWithCode.id });
+
+    await this.userCodeRepo.delete({ code: code });
+
+    return {
+      user: { id: userWithCode.id },
+      auth: auth,
+    };
   }
 }

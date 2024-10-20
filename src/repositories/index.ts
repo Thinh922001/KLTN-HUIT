@@ -9,3 +9,7 @@ export * from './product-detail.repository';
 export * from './product-img-detail.respository';
 export * from './labels.repository';
 export * from './labels-product.repository';
+export * from './user-code.repository';
+export * from './comment.repository';
+export * from './comment-img.repository';
+export * from './user-reaction.repository';

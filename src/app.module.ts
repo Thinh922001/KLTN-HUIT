@@ -16,6 +16,8 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { LabelsModule } from './modules/labels/labels.module';
 import { CartModule } from './modules/cart/cart.module';
 import { SearchModule } from './modules/search/search.module';
+import { CommentModule } from './modules/comment/comment.module';
+import { UserReactionModule } from './modules/user-reaction/user-reaction.module';
 import mySql from './db/mySql';
 
 @Module({
@@ -45,6 +47,8 @@ import mySql from './db/mySql';
     LabelsModule,
     CartModule,
     SearchModule,
+    CommentModule,
+    UserReactionModule,
   ],
   controllers: [],
 })
