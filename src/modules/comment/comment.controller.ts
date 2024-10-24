@@ -28,7 +28,7 @@ export class CommentController extends BaseController {
     @UploadedFiles() files: Express.Multer.File[],
     @Body() createCommentDto: CreateCommentDto
   ) {
-    const data = await this.commentService.createComment(user.id, createCommentDto, files);
+    const data = await this.commentService.createComment(user?.id, createCommentDto, files);
     return this.response(data);
   }
 }
