@@ -33,7 +33,7 @@ export class CommentDto {
     this.id = commentEntity.id;
     this.comment = commentEntity.comment;
     this.totalReaction = commentEntity.totalReaction;
-    this.rating = commentEntity.rating;
+    this.rating = +commentEntity.rating;
     if (commentEntity.images) {
       this.img = commentEntity.images.map((e) => convertHttpToHttps(e.image_url));
     }
