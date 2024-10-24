@@ -87,6 +87,7 @@ export class ProductDetailService {
         `${this.productAlias}.productName`,
         `${this.productAlias}.variants`,
         `${this.productAlias}.specifications`,
+        `${this.productAlias}.img`,
         `${this.cateAlias}.id`,
         `${this.cateAlias}.name`,
         `${this.labelProductAlias}.id`,
