@@ -6,6 +6,7 @@ import { ProductsEntity, UserCommentEntity, UserCommentImagesEntity, UserEntity 
 import { ErrorMessage } from '../../common/message';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CommentDto, GetCommentDto } from './dto/get-comment.dto';
+import { applyPagination } from '../../utils/utils';
 
 @Injectable()
 export class CommentService {
@@ -29,25 +30,36 @@ export class CommentService {
   }
 
   @Transactional()
-  async createComment(userId: number, { comment, rating, productId }: CreateCommentDto, files: Express.Multer.File[]) {
+  async createComment(
+    userId: number,
+    { comment, rating, productId, phone, fullName }: CreateCommentDto,
+    files: Express.Multer.File[]
+  ) {
     const queryProduct = this.productRepo
       .createQueryBuilder(this.productAlias)
-      .where(`${this.productAlias}.id =:productId`, { productId })
+      .where(`${this.productAlias}.id = :productId`, { productId })
       .select([`${this.productAlias}.id`]);
 
     const queryUser = this.userRepo
       .createQueryBuilder(this.userAlias)
-      .where(`${this.userAlias}.id =:userId`, { userId })
+      .where(
+        phone && fullName ? `${this.userAlias}.phone = :phone` : `${this.userAlias}.id = :userId`,
+        phone ? { phone } : { userId }
+      )
       .select([`${this.userAlias}.id`]);
 
-    const [product, user] = await Promise.all([queryProduct.getOne(), queryUser.getOne()]);
+    let [product, user] = await Promise.all([queryProduct.getOne(), queryUser.getOne()]);
 
     if (!product) {
       throw new BadRequestException(ErrorMessage.PRODUCT_NOT_FOUND);
     }
 
     if (!user) {
-      throw new BadRequestException(ErrorMessage.USER_NOT_FOUND);
+      if (phone && fullName) {
+        user = await this.userRepo.save(this.userRepo.create({ phone, name: fullName }));
+      } else {
+        throw new BadRequestException(ErrorMessage.USER_NOT_FOUND);
+      }
     }
 
     const newComment = new UserCommentEntity();
@@ -73,13 +85,11 @@ export class CommentService {
   }
 
   async getComment({ productId, take = 5, skip = 0 }: GetCommentDto) {
-    const comment = await this.commentRepo
+    const commentQuery = this.commentRepo
       .createQueryBuilder(this.commentAlias)
       .leftJoinAndSelect(`${this.commentAlias}.images`, this.commentImgAlias)
       .leftJoinAndSelect(`${this.commentAlias}.user`, this.userALias)
       .where(`${this.commentAlias}.product_id =:productId`, { productId })
-      .take(take)
-      .skip(skip)
       .select([
         `${this.commentAlias}.id`,
         `${this.commentAlias}.comment`,
@@ -91,13 +101,15 @@ export class CommentService {
         `${this.userALias}.name`,
         `${this.userALias}.phone`,
       ])
-      .orderBy(`${this.commentAlias}.totalReaction`, 'DESC')
-      .getMany();
+      .orderBy(`${this.commentAlias}.totalReaction`, 'DESC');
 
-    if (comment.length > 0) {
-      return comment.map((e) => new CommentDto(e));
-    }
+    const { data, paging } = await applyPagination<UserCommentEntity>(commentQuery, take, skip);
 
-    return [];
+    const result: CommentDto[] = data.map((e) => new CommentDto(e));
+
+    return {
+      data: result,
+      paging: paging,
+    };
   }
 }

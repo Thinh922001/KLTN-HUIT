@@ -1,4 +1,9 @@
-import { IsNotEmpty, IsNumberString, IsString } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsNumberString, ValidateIf, Matches } from 'class-validator';
+
+export enum CommentType {
+  NO_AUTH = 'NO_AUTH',
+  AUTH = 'AUTH',
+}
 
 export class CreateCommentDto {
   @IsString()
@@ -13,7 +18,18 @@ export class CreateCommentDto {
   @IsNotEmpty()
   productId: number;
 
-  @IsNumberString()
+  @IsEnum(CommentType)
   @IsNotEmpty()
-  userId: number;
+  type: CommentType;
+
+  @ValidateIf((o) => o.type === CommentType.NO_AUTH)
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\d{10,11}$/, { message: 'Số điện thoại phải bao gồm 10-11 chữ số' })
+  phone: string;
+
+  @ValidateIf((o) => o.type === CommentType.NO_AUTH)
+  @IsString()
+  @IsNotEmpty()
+  fullName: string;
 }

@@ -4,9 +4,9 @@ import { BaseController } from '../../vendors/base/base-controller';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { GetCommentDto } from './dto/get-comment.dto';
-import { UserAuthGuard } from '../../vendors/guards/user/jwt-user.guard';
 import { AuthUser } from '../../vendors/decorator/user.decorator';
 import { UserEntity } from '../../entities';
+import { OptionalJwtGuard } from '../auth/strategies/jwt.straegy.optional';
 
 @Controller('comment')
 export class CommentController extends BaseController {
@@ -22,7 +22,7 @@ export class CommentController extends BaseController {
 
   @Post()
   @UseInterceptors(FilesInterceptor('img'))
-  @UseGuards(UserAuthGuard)
+  @UseGuards(OptionalJwtGuard)
   async createComment(
     @AuthUser() user: UserEntity,
     @UploadedFiles() files: Express.Multer.File[],

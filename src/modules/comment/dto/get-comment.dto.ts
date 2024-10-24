@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumberString, IsOptional, IsString } from 'class-validator';
 import { UserCommentEntity } from '../../../entities';
-import { hidePhoneNumber } from '../../../utils/utils';
+import { convertHttpToHttps, hidePhoneNumber } from '../../../utils/utils';
 
 export class GetCommentDto {
   @IsString()
@@ -35,10 +35,11 @@ export class CommentDto {
     this.totalReaction = commentEntity.totalReaction;
     this.rating = commentEntity.rating;
     if (commentEntity.images) {
-      this.img = commentEntity.images.map((e) => e.image_url);
+      this.img = commentEntity.images.map((e) => convertHttpToHttps(e.image_url));
     }
     if (commentEntity.user) {
       const { id, name, phone } = commentEntity.user;
+      this.owner = Object.create(null);
       this.owner.id = id;
       this.owner.aliasName = name ? name : hidePhoneNumber(phone);
     }

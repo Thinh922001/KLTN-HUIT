@@ -33,7 +33,7 @@ export class GetDetailProductRes {
           label: e.label.type,
           text: e.label.text,
         })) || undefined;
-      this.img = img;
+      this.img = convertHttpToHttps(img);
     }
   }
 }
