@@ -110,3 +110,12 @@ export const sendOTPMsg = (code: string): string => {
   const msg = `Mã OTP của bạn là ${code}. Mã có hiệu lực trong 1 phút. Vui lòng không chia sẻ mã này với người khác.`;
   return msg;
 };
+
+export const hidePhoneNumber = (phoneNumber: string) => {
+  if (phoneNumber.length < 4) {
+    return phoneNumber;
+  }
+  const lastFourDigits = phoneNumber.slice(-4);
+  const hiddenPart = phoneNumber.slice(0, -4).replace(/\d/g, 'x');
+  return hiddenPart + lastFourDigits;
+};

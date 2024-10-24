@@ -13,6 +13,7 @@ export class CommentService {
   commentAlias: string;
   userAlias: string;
   commentImgAlias: string;
+  userALias: string;
   constructor(
     private readonly commentRepo: CommentRepository,
     private readonly productRepo: ProductRepository,
@@ -24,6 +25,7 @@ export class CommentService {
     this.commentAlias = UserCommentEntity.name;
     this.userAlias = UserEntity.name;
     this.commentImgAlias = UserCommentImagesEntity.name;
+    this.userALias = UserEntity.name;
   }
 
   @Transactional()
@@ -74,6 +76,7 @@ export class CommentService {
     const comment = await this.commentRepo
       .createQueryBuilder(this.commentAlias)
       .leftJoinAndSelect(`${this.commentAlias}.images`, this.commentImgAlias)
+      .leftJoinAndSelect(`${this.commentAlias}.user`, this.userALias)
       .where(`${this.commentAlias}.product_id =:productId`, { productId })
       .take(take)
       .skip(skip)
@@ -84,6 +87,9 @@ export class CommentService {
         `${this.commentAlias}.rating`,
         `${this.commentImgAlias}.id`,
         `${this.commentImgAlias}.image_url`,
+        `${this.userALias}.id`,
+        `${this.userALias}.name`,
+        `${this.userALias}.phone`,
       ])
       .orderBy(`${this.commentAlias}.totalReaction`, 'DESC')
       .getMany();
