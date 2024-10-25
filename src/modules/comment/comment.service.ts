@@ -6,7 +6,8 @@ import { ProductsEntity, UserCommentEntity, UserCommentImagesEntity, UserEntity 
 import { ErrorMessage } from '../../common/message';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CommentDto, GetCommentDto } from './dto/get-comment.dto';
-import { applyPagination } from '../../utils/utils';
+import { applyPagination, convertHttpToHttps, hidePhoneNumber } from '../../utils/utils';
+import { UploadApiResponse } from 'cloudinary';
 
 @Injectable()
 export class CommentService {
@@ -46,7 +47,7 @@ export class CommentService {
         phone && fullName ? `${this.userAlias}.phone = :phone` : `${this.userAlias}.id = :userId`,
         phone ? { phone } : { userId }
       )
-      .select([`${this.userAlias}.id`]);
+      .select([`${this.userAlias}.id`, `${this.userALias}.name`, `${this.userALias}.phone`]);
 
     let [product, user] = await Promise.all([queryProduct.getOne(), queryUser.getOne()]);
 
@@ -70,9 +71,11 @@ export class CommentService {
 
     const commentSave = await this.commentRepo.save(newComment);
 
+    let uploadResult: UploadApiResponse[] = [];
+
     if (files && files.length > 0) {
       const uploadPromises = files.map((file) => this.cloudinaryService.uploadImage(file, 'KLTN/comment'));
-      const uploadResult = await Promise.all(uploadPromises);
+      uploadResult = await Promise.all(uploadPromises);
 
       const commentImgEntities = uploadResult.map((e) =>
         this.commentImgRepo.create({ image_url: e.url, publicId: e.public_id, comment: { id: commentSave.id } })
@@ -81,7 +84,17 @@ export class CommentService {
       await this.commentImgRepo.save(commentImgEntities);
     }
 
-    return [];
+    return {
+      id: commentSave.id,
+      comment: commentSave.comment,
+      totalReaction: commentSave.totalReaction,
+      rating: commentSave.rating,
+      img: uploadResult.length > 0 ? uploadResult.map((e) => convertHttpToHttps(e.url)) : [],
+      owner: {
+        id: user.id,
+        aliasName: user?.name ? user.name : hidePhoneNumber(user.phone),
+      },
+    };
   }
 
   async getComment({ productId, take = 5, skip = 0 }: GetCommentDto) {
