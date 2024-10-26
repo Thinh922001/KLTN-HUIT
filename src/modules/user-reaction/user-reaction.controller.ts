@@ -19,7 +19,7 @@ export class UserReactionController extends BaseController {
     const data = await this.userReactionService.addReaction(user.id, body);
     this.appGateWay.sendUpdateToProductRoom(body.productId, {
       commentId: body.commentId,
-      totalReaction: data.totalReaction,
+      totalReaction: Number(data.totalReaction) ,
     });
     return this.response([]);
   }
