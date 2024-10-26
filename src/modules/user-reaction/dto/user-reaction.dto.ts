@@ -12,5 +12,5 @@ export class AddReactionComment {
 
   @IsNotEmpty()
   @IsNumber()
-  userId: number;
+  productId: number;
 }

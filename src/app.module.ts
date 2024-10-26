@@ -19,6 +19,7 @@ import { SearchModule } from './modules/search/search.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { UserReactionModule } from './modules/user-reaction/user-reaction.module';
 import mySql from './db/mySql';
+import { WebSocketModule } from '../src/Gateway/app.gateway.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import mySql from './db/mySql';
     SearchModule,
     CommentModule,
     UserReactionModule,
+    WebSocketModule,
   ],
   controllers: [],
 })

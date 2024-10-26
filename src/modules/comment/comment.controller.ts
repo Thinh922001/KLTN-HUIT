@@ -16,8 +16,9 @@ export class CommentController extends BaseController {
   }
 
   @Get()
-  async getComment(@Query() params: GetCommentDto) {
-    const data = await this.commentService.getComment(params);
+  @UseGuards(OptionalJwtGuard)
+  async getComment(@AuthUser() user: UserEntity, @Query() params: GetCommentDto) {
+    const data = await this.commentService.getComment(user, params);
     return this.response(data);
   }
 

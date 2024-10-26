@@ -36,3 +36,23 @@ export const compareDates = (date1: Date, date2: Date): number => {
     return 0;
   }
 };
+
+export const getTimeDifferenceFromNow = (dateTime: string): string => {
+  const inputTime = moment.tz(dateTime, TIME_ZONE);
+  const now = moment().tz(TIME_ZONE);
+
+  const diffInSeconds = now.diff(inputTime, 'seconds');
+  const diffInMinutes = now.diff(inputTime, 'minutes');
+  const diffInHours = now.diff(inputTime, 'hours');
+  const diffInDays = now.diff(inputTime, 'days');
+  const diffInMonths = now.diff(inputTime, 'months');
+
+  if (diffInSeconds < 10) return 'Vừa xong';
+  if (diffInSeconds < 60) return `${diffInSeconds} giây trước`;
+  if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
+  if (diffInHours < 24) return `${diffInHours} giờ trước`;
+  if (diffInDays < 30) return `${diffInDays} ngày trước`;
+  if (diffInMonths < 12) return `${diffInMonths} tháng trước`;
+
+  return inputTime.format('DD/MM/YYYY');
+};

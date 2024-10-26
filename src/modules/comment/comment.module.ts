@@ -4,19 +4,11 @@ import { CommentController } from './comment.controller';
 import { CommentImgRepository, CommentRepository, ProductRepository, UsersRepository } from '../../repositories';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { JwtService } from '@nestjs/jwt';
-import { AppGateway } from '../../Gateway/app.gateway';
+import { WebSocketModule } from '../../Gateway/app.gateway.module';
 
 @Module({
-  providers: [
-    CommentService,
-    CommentRepository,
-    ProductRepository,
-    UsersRepository,
-    CommentImgRepository,
-    JwtService,
-    AppGateway,
-  ],
+  providers: [CommentService, CommentRepository, ProductRepository, UsersRepository, CommentImgRepository, JwtService],
   controllers: [CommentController],
-  imports: [CloudinaryModule],
+  imports: [CloudinaryModule, WebSocketModule],
 })
 export class CommentModule {}

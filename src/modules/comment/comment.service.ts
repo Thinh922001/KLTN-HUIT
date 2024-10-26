@@ -2,12 +2,19 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CommentImgRepository, CommentRepository, ProductRepository, UsersRepository } from '../../repositories';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { Transactional } from 'typeorm-transactional';
-import { ProductsEntity, UserCommentEntity, UserCommentImagesEntity, UserEntity } from '../../entities';
+import {
+  ProductsEntity,
+  UserCommentEntity,
+  UserCommentImagesEntity,
+  UserEntity,
+  UserReactionEntity,
+} from '../../entities';
 import { ErrorMessage } from '../../common/message';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CommentDto, GetCommentDto } from './dto/get-comment.dto';
 import { applyPagination, convertHttpToHttps, hidePhoneNumber } from '../../utils/utils';
 import { UploadApiResponse } from 'cloudinary';
+import { getTimeDifferenceFromNow } from '../../utils/date';
 
 @Injectable()
 export class CommentService {
@@ -16,6 +23,7 @@ export class CommentService {
   userAlias: string;
   commentImgAlias: string;
   userALias: string;
+  userReactionAlias: string;
   constructor(
     private readonly commentRepo: CommentRepository,
     private readonly productRepo: ProductRepository,
@@ -28,6 +36,7 @@ export class CommentService {
     this.userAlias = UserEntity.name;
     this.commentImgAlias = UserCommentImagesEntity.name;
     this.userALias = UserEntity.name;
+    this.userReactionAlias = UserReactionEntity.name;
   }
 
   @Transactional()
@@ -89,6 +98,8 @@ export class CommentService {
       comment: commentSave.comment,
       totalReaction: commentSave.totalReaction,
       rating: commentSave.rating,
+      liked: false,
+      time: getTimeDifferenceFromNow(commentSave.createdAt.toISOString()),
       img: uploadResult.length > 0 ? uploadResult.map((e) => convertHttpToHttps(e.url)) : [],
       owner: {
         id: user.id,
@@ -97,14 +108,15 @@ export class CommentService {
     };
   }
 
-  async getComment({ productId, take = 5, skip = 0 }: GetCommentDto) {
+  async getComment(user: UserEntity, { productId, take = 5, skip = 0 }: GetCommentDto) {
     const commentQuery = this.commentRepo
       .createQueryBuilder(this.commentAlias)
-      .leftJoinAndSelect(`${this.commentAlias}.images`, this.commentImgAlias)
-      .leftJoinAndSelect(`${this.commentAlias}.user`, this.userALias)
+      .leftJoin(`${this.commentAlias}.images`, this.commentImgAlias)
+      .leftJoin(`${this.commentAlias}.user`, this.userALias)
       .where(`${this.commentAlias}.product_id =:productId`, { productId })
       .select([
         `${this.commentAlias}.id`,
+        `${this.commentAlias}.createdAt`,
         `${this.commentAlias}.comment`,
         `${this.commentAlias}.totalReaction`,
         `${this.commentAlias}.rating`,
@@ -115,6 +127,17 @@ export class CommentService {
         `${this.userALias}.phone`,
       ])
       .orderBy(`${this.commentAlias}.totalReaction`, 'DESC');
+
+    if (user) {
+      commentQuery
+        .leftJoin(
+          `${this.commentAlias}.userReaction`,
+          this.userReactionAlias,
+          `${this.commentAlias}.id = ${this.userReactionAlias}.comment_id AND ${this.userReactionAlias}.user_id =:userId`,
+          { userId: user.id }
+        )
+        .addSelect([`${this.userReactionAlias}.id`]);
+    }
 
     const { data, paging } = await applyPagination<UserCommentEntity>(commentQuery, take, skip);
 

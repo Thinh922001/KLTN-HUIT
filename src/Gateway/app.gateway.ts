@@ -39,4 +39,9 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
   sendCommentToRoom(productId: number, comment: any) {
     this.server.to(`product_${productId}`).emit('newComment', comment);
   }
+
+  sendUpdateToProductRoom(productId: number, updateData: any) {
+    this.server.to(`product_${productId}`).emit('updateComment', updateData);
+    console.log(`Sent update to product room product_${productId}:`, updateData);
+  }
 }

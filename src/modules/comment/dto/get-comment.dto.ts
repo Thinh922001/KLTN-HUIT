@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsNumberString, IsOptional, IsString } from 'class-validator';
 import { UserCommentEntity } from '../../../entities';
 import { convertHttpToHttps, hidePhoneNumber } from '../../../utils/utils';
+import { getTimeDifferenceFromNow } from '../../../utils/date';
 
 export class GetCommentDto {
   @IsString()
@@ -26,11 +27,14 @@ export class CommentDto {
   comment: string;
   totalReaction: number;
   rating: number;
+  time: string;
   img?: string[];
+  liked: boolean;
   owner: IAuthComment;
 
   constructor(commentEntity: UserCommentEntity) {
     this.id = commentEntity.id;
+    this.time = getTimeDifferenceFromNow(commentEntity.createdAt.toISOString());
     this.comment = commentEntity.comment;
     this.totalReaction = commentEntity.totalReaction;
     this.rating = +commentEntity.rating;
@@ -43,5 +47,6 @@ export class CommentDto {
       this.owner.id = id;
       this.owner.aliasName = name ? name : hidePhoneNumber(phone);
     }
+    this.liked = !!commentEntity.userReaction?.length;
   }
 }
