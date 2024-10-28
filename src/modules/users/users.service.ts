@@ -5,7 +5,7 @@ import { AUTH_TYPE } from '../../common/constaints';
 import { BadRequestException, UnauthorizedException } from '../../vendors/exceptions/errors.exception';
 import { ErrorMessage } from '../../common/message';
 import { UserEntity } from '../../entities/user.entity';
-import { generateRandomCode, saltHasPassword, sendOTPMsg } from '../../utils/utils';
+import { generateRandomCode, hidePhoneNumber, saltHasPassword, sendOTPMsg } from '../../utils/utils';
 import { compareSync, hash } from 'bcrypt';
 import moment from 'moment';
 import { JwtService } from '@nestjs/jwt';
@@ -184,6 +184,8 @@ export class UsersService {
       .where(`${this.userAlias}.phone = :phone`, { phone })
       .select([
         `${this.userAlias}.id`,
+        `${this.userAlias}.name`,
+        `${this.userAlias}.phone`,
         `${this.userCodeAlias}.id`,
         `${this.userCodeAlias}.expiration_date`,
         `${this.userCodeAlias}.code`,
@@ -213,8 +215,11 @@ export class UsersService {
     await this.userCodeRepo.delete({ code: code });
 
     return {
-      user: { id: userWithCode.id },
-      auth: auth,
+      user: {
+        id: userWithCode.id,
+        name: userWithCode?.name || hidePhoneNumber(userWithCode.phone),
+      },
+      auth,
     };
   }
 }
