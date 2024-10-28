@@ -156,13 +156,18 @@ export class CommentService {
       .where(`${this.commentAlias}sub.product_id = :productId`, { productId })
       .select(`COUNT(${this.commentAlias}sub.id)`);
 
+    const subQuery2 = this.commentRepo
+      .createQueryBuilder(`${this.commentAlias}sub2`)
+      .where(`${this.commentAlias}sub2.product_id = :productId`, { productId })
+      .select(`AVG(${this.commentAlias}sub2.rating)`);
+
     const queryResult = await this.commentRepo
       .createQueryBuilder(`${this.commentAlias}`)
       .where(`${this.commentAlias}.product_id = :productId`, { productId })
       .select([
         `ROUND(${this.commentAlias}.rating) as rating`,
         `ROUND(NULLIF(COUNT(${this.commentAlias}.rating), 0) / (${subQuery.getQuery()}) * 100) as ratingReaction`,
-        `AVG(${this.commentAlias}.rating) as avgRating`,
+        `(${subQuery2.getQuery()}) as avgRating`,
       ])
       .setParameters({ productId })
       .groupBy(`${this.commentAlias}.rating`)
@@ -174,6 +179,8 @@ export class CommentService {
         ? { rating: +existingRating.rating, ratingReaction: +existingRating.ratingReaction }
         : { rating, ratingReaction: 0 };
     });
+
+    console.log(queryResult);
 
     return {
       avgRating: queryResult.length > 0 ? +queryResult[0].avgRating : 0,
