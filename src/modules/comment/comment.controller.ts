@@ -8,6 +8,7 @@ import { OptionalJwtGuard } from '../auth/strategies/jwt.straegy.optional';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { GetCommentDto } from './dto/get-comment.dto';
+import { StatisticComment } from './dto/statistic-comment.dto';
 
 @Controller('comment')
 export class CommentController extends BaseController {
@@ -33,5 +34,11 @@ export class CommentController extends BaseController {
     const data = await this.commentService.createComment(user?.id, createCommentDto, files);
     this.appGateway.sendCommentToRoom(createCommentDto.productId, data);
     return this.response([]);
+  }
+
+  @Get('statistic')
+  async statistsComment(@Query() params: StatisticComment) {
+    const data = await this.commentService.statisticComment(params);
+    return this.response(data);
   }
 }

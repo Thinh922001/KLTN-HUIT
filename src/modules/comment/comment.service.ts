@@ -15,6 +15,7 @@ import { CommentDto, GetCommentDto } from './dto/get-comment.dto';
 import { applyPagination, convertHttpToHttps, hidePhoneNumber } from '../../utils/utils';
 import { UploadApiResponse } from 'cloudinary';
 import { getTimeDifferenceFromNow } from '../../utils/date';
+import { StatisticComment } from './dto/statistic-comment.dto';
 
 @Injectable()
 export class CommentService {
@@ -146,6 +147,37 @@ export class CommentService {
     return {
       data: result,
       paging: paging,
+    };
+  }
+
+  async statisticComment({ productId }: StatisticComment) {
+    const subQuery = this.commentRepo
+      .createQueryBuilder(`${this.commentAlias}sub`)
+      .where(`${this.commentAlias}sub.product_id = :productId`, { productId })
+      .select(`COUNT(${this.commentAlias}sub.id)`);
+
+    const queryResult = await this.commentRepo
+      .createQueryBuilder(`${this.commentAlias}`)
+      .where(`${this.commentAlias}.product_id = :productId`, { productId })
+      .select([
+        `ROUND(${this.commentAlias}.rating) as rating`,
+        `ROUND(NULLIF(COUNT(${this.commentAlias}.rating), 0) / (${subQuery.getQuery()}) * 100) as ratingReaction`,
+        `AVG(${this.commentAlias}.rating) as avgRating`,
+      ])
+      .setParameters({ productId })
+      .groupBy(`${this.commentAlias}.rating`)
+      .getRawMany<{ rating: number; ratingReaction: number; avgRating: number }>();
+
+    const fullRatings = [1, 2, 3, 4, 5].map((rating) => {
+      const existingRating = queryResult.find((item) => +item.rating === rating);
+      return existingRating
+        ? { rating: +existingRating.rating, ratingReaction: +existingRating.ratingReaction }
+        : { rating, ratingReaction: 0 };
+    });
+
+    return {
+      avgRating: queryResult.length > 0 ? +queryResult[0].avgRating : 0,
+      ratings: fullRatings,
     };
   }
 }
