@@ -81,7 +81,7 @@ export class CartService {
 
   @Transactional()
   public async syncCart(user: UserEntity, { carts }: SyncCartDto) {
-    const cartMap = new Map(carts.map((e) => [e.id, e]));
+    const cartMap = new Map(carts.map((cartItem) => [cartItem.id, cartItem]));
 
     const productDetails = await this.productDetailRepo
       .createQueryBuilder(this.proDetailAlias)
@@ -93,38 +93,40 @@ export class CartService {
       throw new BadRequestException(ErrorMessage.PRODUCT_NOT_FOUND);
     }
 
-    const productDetailMap = new Map(productDetails.map((item) => [item.id, item]));
+    const productDetailMap = new Map(productDetails.map((product) => [product.id, product]));
 
-    const cart = await this.getCartByOwner(user.id);
+    let cart = await this.getCartByOwner(user.id);
 
     if (!cart) {
+      // If no cart exists, create a new one
       const newCart = this.cartRepo.create({ customer: { id: user.id } });
-      newCart.total_price = productDetails.reduce((acc, item) => {
-        const cartItem = cartMap.get(item.id);
-        return acc + (cartItem?.quantity ?? 0) * item.price;
+      newCart.total_price = productDetails.reduce((acc, product) => {
+        const cartItem = cartMap.get(product.id);
+        return acc + (cartItem?.quantity ?? 0) * +product.price;
       }, 0);
 
-      const savedCart = await this.cartRepo.save(newCart);
+      cart = await this.cartRepo.save(newCart);
 
-      const cartItemsEntities = productDetails.map((item) => {
-        const cartItem = cartMap.get(item.id);
+      const cartItemsEntities = productDetails.map((product) => {
+        const cartItem = cartMap.get(product.id);
         return this.cartItemsRepo.create({
-          sku: { id: item.id },
+          sku: { id: product.id },
           quantity: cartItem.quantity,
-          unit_price: item.price,
-          total_price: +item.price * cartItem.quantity,
-          cart: { id: savedCart.id },
+          unit_price: product.price,
+          total_price: +product.price * cartItem.quantity,
+          cart: { id: cart.id },
         });
       });
 
       await this.cartItemsRepo.save(cartItemsEntities);
     } else {
-      cart.cart_items.forEach((item) => {
-        const cartItem = cartMap.get(item.sku.id);
+      cart.cart_items.forEach((existingItem) => {
+        const cartItem = cartMap.get(existingItem.sku.id);
         if (cartItem) {
-          item.quantity = cartItem.quantity;
-          item.total_price = cartItem.quantity * +item.unit_price;
-          cartMap.delete(item.sku.id);
+          existingItem.quantity = cartItem.quantity;
+          existingItem.total_price = cartItem.quantity * +existingItem.unit_price;
+          existingItem.cart = cart;
+          cartMap.delete(existingItem.sku.id);
         }
       });
 
@@ -139,14 +141,15 @@ export class CartService {
         });
       });
 
-      if (newCartItems.length > 0) {
-        await this.cartItemsRepo.save(newCartItems);
-      }
-
       cart.total_price =
         cart.cart_items.reduce((acc, item) => acc + +item.total_price, 0) +
         newCartItems.reduce((acc, item) => acc + +item.total_price, 0);
+
       await this.cartRepo.save(cart);
+
+      if (newCartItems.length > 0) {
+        await this.cartItemsRepo.save(newCartItems);
+      }
     }
 
     return [];
