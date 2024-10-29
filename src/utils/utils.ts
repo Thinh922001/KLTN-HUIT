@@ -119,3 +119,12 @@ export const hidePhoneNumber = (phoneNumber: string) => {
   const hiddenPart = phoneNumber.slice(0, -4).replace(/\d/g, 'x');
   return hiddenPart + lastFourDigits;
 };
+
+// calculateDiscountedAmount(coupon: CouponEntity, totalAmount: number): number {
+//   if (coupon.discount_type === 'percentage') {
+//     return totalAmount * (1 - coupon.discount_value / 100);
+//   } else if (coupon.discount_type === 'amount') {
+//     return totalAmount - coupon.discount_value;
+//   }
+//   return totalAmount;
+// }

@@ -31,6 +31,7 @@ export enum ErrorMessage {
   INVALID_CODE = 'INVALID_CODE',
   PRODUCT_NOT_FOUND = 'PRODUCT_NOT_FOUND',
   USER_NOT_FOUND = 'USER_NOT_FOUND',
+  CART_NOT_FOUND = 'CART_NOT_FOUND',
 }
 
 export enum JsonWebTokenError {

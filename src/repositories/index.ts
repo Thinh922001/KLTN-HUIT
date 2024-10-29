@@ -13,3 +13,5 @@ export * from './user-code.repository';
 export * from './comment.repository';
 export * from './comment-img.repository';
 export * from './user-reaction.repository';
+export * from './cart.repository';
+export * from './cart-items.repository';
