@@ -32,6 +32,15 @@ export enum ErrorMessage {
   PRODUCT_NOT_FOUND = 'PRODUCT_NOT_FOUND',
   USER_NOT_FOUND = 'USER_NOT_FOUND',
   CART_NOT_FOUND = 'CART_NOT_FOUND',
+  COUPON_EXPIRED = 'COUPON_EXPIRED',
+  COUPON_NOT_ACTIVE = 'COUPON_NOT_ACTIVE',
+  EXCEEDED_COUPON = 'EXCEEDED_COUPON',
+  INVALID_COUPON = 'INVALID_COUPON',
+  SOLD_OUT = 'SOLD_OUT',
+}
+
+export function getErrorMessage(error: ErrorMessage, param?: string): string {
+  return param ? `${error}: ${param}` : error;
 }
 
 export enum JsonWebTokenError {

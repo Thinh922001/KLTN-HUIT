@@ -10,7 +10,7 @@ export default new DataSource({
   password: process.env.MASTER_RDS_PASSWORD,
   database: process.env.MASTER_RDS_DATABASE,
   synchronize: false,
-  logging: ['error'],
+  logging: ['error', 'query'],
   entities: [path.join(__dirname, './src/entities/*.entity{.ts,.js}')],
   migrations: [
     path.join(__dirname, './src/migrations/*{.ts,.js}'),

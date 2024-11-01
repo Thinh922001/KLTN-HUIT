@@ -2,6 +2,7 @@ import { genSalt } from 'bcrypt';
 import { PagingDto } from '../vendors/dto/pager.dto';
 import { SelectQueryBuilder } from 'typeorm';
 import { Variant } from '../vendors/base/type';
+import { CouponEntity } from '../entities';
 
 export async function saltHasPassword(num: number = 10) {
   const salt = await genSalt(num);
@@ -120,11 +121,11 @@ export const hidePhoneNumber = (phoneNumber: string) => {
   return hiddenPart + lastFourDigits;
 };
 
-// calculateDiscountedAmount(coupon: CouponEntity, totalAmount: number): number {
-//   if (coupon.discount_type === 'percentage') {
-//     return totalAmount * (1 - coupon.discount_value / 100);
-//   } else if (coupon.discount_type === 'amount') {
-//     return totalAmount - coupon.discount_value;
-//   }
-//   return totalAmount;
-// }
+export const calculateDiscountedAmount = (coupon: CouponEntity, totalAmount: number): number => {
+  if (coupon.discount_type === 'percentage') {
+    return totalAmount * (1 - coupon.discount_value / 100);
+  } else if (coupon.discount_type === 'amount') {
+    return totalAmount - coupon.discount_value;
+  }
+  return totalAmount;
+};

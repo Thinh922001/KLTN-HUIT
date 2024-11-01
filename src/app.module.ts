@@ -20,6 +20,8 @@ import { CommentModule } from './modules/comment/comment.module';
 import { UserReactionModule } from './modules/user-reaction/user-reaction.module';
 import mySql from './db/mySql';
 import { WebSocketModule } from '../src/Gateway/app.gateway.module';
+import { CouponModule } from './modules/coupon/coupon.module';
+import { OrderModule } from './modules/order/order.module';
 
 @Module({
   imports: [
@@ -51,6 +53,8 @@ import { WebSocketModule } from '../src/Gateway/app.gateway.module';
     CommentModule,
     UserReactionModule,
     WebSocketModule,
+    CouponModule,
+    OrderModule,
   ],
   controllers: [],
 })

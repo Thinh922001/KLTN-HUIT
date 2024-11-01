@@ -4,17 +4,19 @@ import { AbstractEntity } from '../vendors/base/abtract.entity';
 import { OrderDetailEntity } from './order-details.entity';
 import { InvoiceEntity } from './invoice.entity';
 import { CouponEntity } from './coupon.entity';
+import { OrderStatus, ShippingMethod } from '../types';
+import { OrderStatusHistory } from './order-status-history.entity';
 
 @Entity('order')
 export class OrderEntity extends AbstractEntity {
   @Column({ type: 'varchar', length: 50, default: 'Pending' })
-  status: string;
+  status: OrderStatus;
 
   @Column({ type: 'decimal', precision: 15, scale: 2 })
   total_amount: number;
 
   @Column({ type: 'varchar', length: 100, nullable: true, charset: 'utf8mb4', collation: 'utf8mb4_unicode_ci' })
-  shipping_method: string;
+  shipping_method: ShippingMethod;
 
   @Column({ type: 'text', nullable: true, charset: 'utf8mb4', collation: 'utf8mb4_unicode_ci' })
   shipping_address: string;
@@ -35,4 +37,7 @@ export class OrderEntity extends AbstractEntity {
 
   @OneToMany(() => InvoiceEntity, (invoice) => invoice.order)
   invoices: InvoiceEntity[];
+
+  @OneToMany(() => OrderStatusHistory, (statusHistory) => statusHistory.order)
+  statusHistory: OrderStatusHistory[];
 }

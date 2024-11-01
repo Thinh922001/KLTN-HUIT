@@ -15,3 +15,5 @@ export * from './comment-img.repository';
 export * from './user-reaction.repository';
 export * from './cart.repository';
 export * from './cart-items.repository';
+export * from './coupon.repository';
+export * from './order.repository';
