@@ -13,10 +13,6 @@ export class AuthDto {
   @IsNotEmpty()
   fullName: string;
 
-  @IsString()
-  @IsNotEmpty()
-  address: string;
-
   @IsEnum(Gender)
   @IsNotEmpty()
   gender: Gender;
@@ -44,4 +40,8 @@ export class OrderDto {
   @IsString()
   @IsOptional()
   note?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  address: string;
 }

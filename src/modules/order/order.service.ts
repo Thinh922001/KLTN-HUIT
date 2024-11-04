@@ -38,7 +38,7 @@ export class OrderService {
   }
 
   @Transactional()
-  async createOrder(user: UserEntity, { carts, auth, coupon, note }: OrderDto) {
+  async createOrder(user: UserEntity, { carts, auth, coupon, note, address }: OrderDto) {
     const cartMap = new Map(carts.map((e) => [e.id, e]));
     const productDetailRepo = this.OrderRepo.manager.getRepository(ProductDetailsEntity);
     const userRepo = this.OrderRepo.manager.getRepository(UserEntity);
@@ -57,7 +57,7 @@ export class OrderService {
           phone: auth.phone,
           name: auth.fullName,
           gender: auth.gender,
-          address: auth.address,
+          address: address,
         });
         orderCustomer = await userRepo.save(userEntity);
       }
@@ -92,7 +92,7 @@ export class OrderService {
       status: OrderStatus.PENDING,
       total_amount: totalAmount,
       shipping_method: ShippingMethod.STANDARD,
-      shipping_address: auth.address,
+      shipping_address: address,
       note: note,
       customer: orderCustomer,
       coupon: couponData ? { id: couponData.id } : null,
