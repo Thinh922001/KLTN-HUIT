@@ -3,6 +3,8 @@ import { PagingDto } from '../vendors/dto/pager.dto';
 import { SelectQueryBuilder } from 'typeorm';
 import { Variant } from '../vendors/base/type';
 import { CouponEntity } from '../entities';
+import { EntityTarget } from 'typeorm';
+import dataSource from '../../typeOrm.config';
 
 export async function saltHasPassword(num: number = 10) {
   const salt = await genSalt(num);
@@ -128,4 +130,11 @@ export const calculateDiscountedAmount = (coupon: CouponEntity, totalAmount: num
     return totalAmount - coupon.discount_value;
   }
   return totalAmount;
+};
+
+export const getTableName = <Entity>(entity: EntityTarget<Entity>): string => {
+  if (!dataSource.isInitialized) {
+    throw new Error('DataSource chưa được khởi tạo');
+  }
+  return dataSource.getMetadata(entity).tableName;
 };

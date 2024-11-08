@@ -56,3 +56,11 @@ export const getTimeDifferenceFromNow = (dateTime: string): string => {
 
   return inputTime.format('DD/MM/YYYY');
 };
+
+export const formatDateTimeToVietnamTimezone = (dateTime: string) => {
+  const currentLocale = moment.locale();
+  moment.locale('vi');
+  const formattedDateTime = moment(dateTime).tz(TIME_ZONE).format('HH:mm dddd, DD/MM/YYYY');
+  moment.locale(currentLocale);
+  return formattedDateTime;
+};

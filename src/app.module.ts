@@ -22,6 +22,7 @@ import mySql from './db/mySql';
 import { WebSocketModule } from '../src/Gateway/app.gateway.module';
 import { CouponModule } from './modules/coupon/coupon.module';
 import { OrderModule } from './modules/order/order.module';
+import { OrderDetailModule } from './modules/order-detail/order-detail.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { OrderModule } from './modules/order/order.module';
     WebSocketModule,
     CouponModule,
     OrderModule,
+    OrderDetailModule,
   ],
   controllers: [],
 })

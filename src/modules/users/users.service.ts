@@ -16,6 +16,7 @@ import { compareDates, getAdjustedTimeWithTimeZone } from '../../utils/date';
 import { Transactional } from 'typeorm-transactional';
 import { SnsService } from '../sns/sns.service';
 import { VerifyCodeDto } from './dto/verify-code.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -221,5 +222,10 @@ export class UsersService {
       },
       auth,
     };
+  }
+
+  @Transactional()
+  async updateUser(user: UserEntity, { name, gender, address }: UpdateUserDto) {
+    return await this.userRepo.update(user.id, { name, gender, address });
   }
 }

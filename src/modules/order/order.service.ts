@@ -6,6 +6,7 @@ import {
   CartItemEntity,
   CouponEntity,
   OrderDetailEntity,
+  OrderEntity,
   OrderStatusHistory,
   ProductDetailsEntity,
   ProductsEntity,
@@ -17,6 +18,8 @@ import { BadRequestException } from '../../vendors/exceptions/errors.exception';
 import { ErrorMessage } from '../../common/message';
 import { CouponService } from '../coupon/coupon.service';
 import { OrderStatus, ShippingMethod } from '../../types';
+import { GetOrder, OrderUser } from './dto/get-order.dto';
+import { applyPagination, getTableName } from '../../utils/utils';
 
 @Injectable()
 export class OrderService {
@@ -25,16 +28,52 @@ export class OrderService {
   userAlias: string;
   cartItemAlias: string;
   couponAlias: string;
+  orderAlias: string;
+  orderDetailAlias: string;
   constructor(
     private readonly cartService: CartService,
     private readonly couponService: CouponService,
     private readonly OrderRepo: OrderRepository
   ) {
-    this.productDetailAlias = ProductDetailsEntity.name;
-    this.productAlias = ProductsEntity.name;
+    this.productDetailAlias = getTableName(ProductDetailsEntity);
+    this.productAlias = getTableName(ProductsEntity);
     this.userAlias = UserEntity.name;
     this.cartItemAlias = CartItemEntity.name;
     this.couponAlias = CouponEntity.name;
+    this.orderAlias = getTableName(OrderEntity);
+    this.orderDetailAlias = getTableName(OrderDetailEntity);
+  }
+
+  public async getOrder(user: UserEntity, { filterBy, take = 3, skip = 0 }: GetOrder) {
+    const query = this.OrderRepo.createQueryBuilder(this.orderAlias)
+      .withDeleted()
+      .leftJoin(`${this.orderAlias}.orderDetails`, this.orderDetailAlias)
+      .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
+      .leftJoin(`${this.productDetailAlias}.product`, this.productAlias)
+      .where(`${this.orderAlias}.customer_id = :userId`, { userId: user.id })
+      .select([
+        `${this.orderAlias}.id`,
+        `${this.orderAlias}.status`,
+        `${this.orderAlias}.total_amount`,
+        `${this.orderDetailAlias}.id`,
+        `${this.productDetailAlias}.id`,
+        `${this.productDetailAlias}.variationDetails`,
+        `${this.productAlias}.id`,
+        `${this.productAlias}.img`,
+        `${this.productAlias}.productName`,
+      ]);
+
+    if (filterBy) {
+      query.andWhere(`${this.orderAlias}.status =:status`, { status: filterBy });
+    }
+
+    const { data, paging } = await applyPagination<OrderEntity>(query, take, skip);
+
+    const result: OrderUser[] = data.map((e) => new OrderUser(e));
+    return {
+      data: result,
+      paging,
+    };
   }
 
   @Transactional()
