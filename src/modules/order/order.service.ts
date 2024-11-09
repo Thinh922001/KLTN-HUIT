@@ -44,7 +44,7 @@ export class OrderService {
     this.orderDetailAlias = getTableName(OrderDetailEntity);
   }
 
-  public async getOrder(user: UserEntity, { filterBy, take = 3, skip = 0 }: GetOrder) {
+  public async getOrder(user: UserEntity, { filterBy, take = 3, skip }: GetOrder) {
     const query = this.OrderRepo.createQueryBuilder(this.orderAlias)
       .withDeleted()
       .leftJoin(`${this.orderAlias}.orderDetails`, this.orderDetailAlias)
