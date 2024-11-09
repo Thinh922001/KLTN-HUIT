@@ -22,7 +22,13 @@ export class OrderUser {
     this.totalAmount = orderEntity.total_amount;
     this.status = orderEntity.status;
     this.images = orderEntity.orderDetails.map((e) => e.sku.product.img);
-    this.name = orderEntity.orderDetails[0].sku.product.productName;
+    const color =
+      orderEntity.orderDetails[0].sku.variationDetails &&
+      orderEntity.orderDetails[0].sku.variationDetails['color'] !== undefined &&
+      orderEntity.orderDetails[0].sku.variationDetails['color'] !== null
+        ? String(orderEntity.orderDetails[0].sku.variationDetails['color'])
+        : '';
+    this.name = orderEntity.orderDetails[0].sku.product.productName + color && ' ' + color;
     this.totalItems = orderEntity.orderDetails.length;
   }
 }
