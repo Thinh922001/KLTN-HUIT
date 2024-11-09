@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AuthData, LoginDto, RefreshTokenDto, RegisterDto } from '../auth/dto/auth.dto';
 import { UsersRepository } from '../../repositories/user.repositories';
 import { AUTH_TYPE } from '../../common/constaints';
@@ -226,6 +226,24 @@ export class UsersService {
 
   @Transactional()
   async updateUser(user: UserEntity, { name, gender, address }: UpdateUserDto) {
-    return await this.userRepo.update(user.id, { name, gender, address });
+    const updateData: Partial<UserEntity> = {};
+    if (name !== undefined) updateData.name = name;
+    if (gender !== undefined) updateData.gender = gender;
+    if (address !== undefined) updateData.address = address;
+
+    if (Object.keys(updateData).length === 0) {
+      return new BadRequestException(ErrorMessage.INVALID_UPDATE_USER);
+    }
+
+    const result = await this.userRepo.update(user.id, updateData);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`User with ID ${user.id} not found`);
+    }
+
+    return {
+      message: 'User updated successfully',
+      updatedFields: updateData,
+    };
   }
 }

@@ -37,6 +37,7 @@ export enum ErrorMessage {
   EXCEEDED_COUPON = 'EXCEEDED_COUPON',
   INVALID_COUPON = 'INVALID_COUPON',
   SOLD_OUT = 'SOLD_OUT',
+  INVALID_UPDATE_USER = 'No fields provided for update',
 }
 
 export function getErrorMessage(error: ErrorMessage, param?: string): string {
