@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { BaseController } from '../../vendors/base/base-controller';
 import { OrderDto } from './dto/order.dto';
@@ -23,7 +23,7 @@ export class OrderController extends BaseController {
 
   @Get()
   @UseGuards(UserAuthGuard)
-  async getOrder(@AuthUser() user: UserEntity, @Body() body: GetOrder) {
+  async getOrder(@AuthUser() user: UserEntity, @Query() body: GetOrder) {
     const data = await this.orderService.getOrder(user, body);
     return this.response(data);
   }
