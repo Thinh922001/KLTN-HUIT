@@ -28,7 +28,8 @@ export class OrderUser {
       orderEntity.orderDetails[0].sku.variationDetails['color'] !== null
         ? String(orderEntity.orderDetails[0].sku.variationDetails['color'])
         : '';
-    this.name = orderEntity.orderDetails[0].sku.product.productName + color && ' ' + color;
+    this.name = orderEntity.orderDetails[0].sku.product.productName + (color ? ' ' + color : '');
+
     this.totalItems = orderEntity.orderDetails.length;
   }
 }
