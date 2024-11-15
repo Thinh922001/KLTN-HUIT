@@ -21,3 +21,4 @@ export * from './user-comment-images.entity';
 export * from './user-comment.entity';
 export * from './user-reaction.entity';
 export * from './order-status-history.entity';
+export * from './admin.entity';
