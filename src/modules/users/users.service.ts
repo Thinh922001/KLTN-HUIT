@@ -5,7 +5,7 @@ import { AUTH_TYPE } from '../../common/constaints';
 import { BadRequestException, UnauthorizedException } from '../../vendors/exceptions/errors.exception';
 import { ErrorMessage } from '../../common/message';
 import { UserEntity } from '../../entities/user.entity';
-import { generateRandomCode, hidePhoneNumber, saltHasPassword, sendOTPMsg } from '../../utils/utils';
+import { applyPagination, generateRandomCode, hidePhoneNumber, saltHasPassword, sendOTPMsg } from '../../utils/utils';
 import { compareSync, hash } from 'bcrypt';
 import moment from 'moment';
 import { JwtService } from '@nestjs/jwt';
@@ -17,6 +17,7 @@ import { Transactional } from 'typeorm-transactional';
 import { SnsService } from '../sns/sns.service';
 import { VerifyCodeDto } from './dto/verify-code.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { GetUser } from './dto/get-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -225,7 +226,7 @@ export class UsersService {
   }
 
   @Transactional()
-  async updateUser(user: UserEntity, { name, gender, address }: UpdateUserDto) {
+  async updateUser(user: Partial<UserEntity>, { name, gender, address }: UpdateUserDto) {
     const updateData: Partial<UserEntity> = {};
     if (name !== undefined) updateData.name = name;
     if (gender !== undefined) updateData.gender = gender;
@@ -245,5 +246,48 @@ export class UsersService {
       message: 'User updated successfully',
       updatedFields: updateData,
     };
+  }
+
+  async getUsers({ take, skip }: GetUser) {
+    const query = this.userRepo
+      .createQueryBuilder(this.userAlias)
+      .select([
+        `${this.userAlias}.id`,
+        `${this.userAlias}.name`,
+        `${this.userAlias}.phone`,
+        `${this.userAlias}.address`,
+        `${this.userAlias}.gender`,
+      ]);
+
+    const { data, paging } = await applyPagination<UserEntity>(query, take, skip);
+
+    return {
+      data: data,
+      paging: paging,
+    };
+  }
+
+  async getUserById(userId: number) {
+    const user = await this.userRepo
+      .createQueryBuilder(this.userAlias)
+      .where(`${this.userAlias}.id =:userId`, { userId })
+      .select([
+        `${this.userAlias}.id`,
+        `${this.userAlias}.name`,
+        `${this.userAlias}.phone`,
+        `${this.userAlias}.address`,
+        `${this.userAlias}.gender`,
+      ])
+      .getOne();
+
+    return user;
+  }
+
+  async deleteUser(userId: number) {
+    return await this.userRepo.softDelete({ id: userId });
+  }
+
+  async restoreUser(userId: number) {
+    return await this.userRepo.restore({ id: userId });
   }
 }

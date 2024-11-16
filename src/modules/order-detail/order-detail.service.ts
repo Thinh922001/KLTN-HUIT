@@ -11,7 +11,7 @@ export class OrderDetailService {
   productAlias: string;
   orderAlias: string;
   userAlias: string;
-  constructor(private readonly orderRepo: OrderRepository) {
+  constructor(private readonly orderRepo: OrderRepository, private readonly orderDetailRepo: OrderDetailRepository) {
     this.orderDetailAlias = getTableName(OrderDetailEntity);
     this.productDetailAlias = getTableName(ProductDetailsEntity);
     this.productAlias = getTableName(ProductsEntity);
@@ -29,6 +29,39 @@ export class OrderDetailService {
       .leftJoin(`${this.productDetailAlias}.product`, this.productAlias)
       .where(`${this.orderAlias}.id =:orderId`, { orderId: params.orderId })
       .andWhere(`${this.orderAlias}.customer_id =:userId`, { userId: user.id })
+      .select([
+        `${this.orderAlias}.id`,
+        `${this.orderAlias}.shipping_address`,
+        `${this.orderAlias}.updatedAt`,
+        `${this.orderAlias}.createdAt`,
+        `${this.orderAlias}.total_amount`,
+        `${this.userAlias}.id`,
+        `${this.userAlias}.name`,
+        `${this.userAlias}.phone`,
+        `${this.userAlias}.gender`,
+        `${this.orderDetailAlias}.id`,
+        `${this.orderDetailAlias}.quantity`,
+        `${this.orderDetailAlias}.total_price`,
+        `${this.productDetailAlias}.id`,
+        `${this.productDetailAlias}.variationDetails`,
+        `${this.productAlias}.id`,
+        `${this.productAlias}.productName`,
+        `${this.productAlias}.img`,
+      ])
+      .getOne();
+
+    return new GetOrderResponse(orderEntity);
+  }
+
+  async getOrderDetailFormOrderId(orderId: number) {
+    const orderEntity = await this.orderRepo
+      .createQueryBuilder(this.orderAlias)
+      .withDeleted()
+      .leftJoin(`${this.orderAlias}.orderDetails`, this.orderDetailAlias)
+      .leftJoin(`${this.orderAlias}.customer`, this.userAlias)
+      .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
+      .leftJoin(`${this.productDetailAlias}.product`, this.productAlias)
+      .where(`${this.orderAlias}.id =:orderId`, { orderId })
       .select([
         `${this.orderAlias}.id`,
         `${this.orderAlias}.shipping_address`,

@@ -13,6 +13,8 @@ import {
 import { GetDetailProductRes } from './dto/get-detail-product-res.dtp';
 import { AddImgDto } from './dto/add-img-prduct-detail.dto';
 import { UploadApiResponse } from 'cloudinary';
+import { In } from 'typeorm';
+import { UpdateProductDetail } from './dto/update-product-detail.dto';
 
 @Injectable()
 export class ProductDetailService {
@@ -188,5 +190,53 @@ export class ProductDetailService {
 
       return await this.productImg.save(productImg);
     }
+  }
+
+  async getProductDetail(productDetailId: number) {
+    const productDetail = await this.productDetailRepo
+      .createQueryBuilder(this.productDeAlias)
+      .withDeleted()
+      .where(`${this.productDeAlias}.id =:productDetailId`, { productDetailId })
+      .leftJoin(`${this.productDeAlias}.productDetailsImg`, this.productDetailImgAs)
+      .select([
+        `${this.productDeAlias}.id`,
+        `${this.productDeAlias}.deletedAt`,
+        `${this.productDeAlias}.price`,
+        `${this.productDeAlias}.oldPrice`,
+        `${this.productDeAlias}.discountPercent`,
+        `${this.productDeAlias}.stock`,
+        `${this.productDetailImgAs}.id`,
+        `${this.productDetailImgAs}.img`,
+      ])
+      .getOne();
+
+    return productDetail;
+  }
+
+  async getPublicIdFromProductImgDetail(imgId: number[]) {
+    const data = await this.productImg
+      .createQueryBuilder(this.productDetailImgAs)
+      .select([`${this.productDetailImgAs}.publicId`])
+      .where(`${this.productDetailImgAs}.id IN (:...imgId)`, { imgId })
+      .getMany();
+
+    if (!data || !data.length) return [];
+    return data.map((e) => e.publicId);
+  }
+
+  async deleteImgId(imgId: number[]) {
+    return await this.productImg.delete({ id: In(imgId) });
+  }
+
+  async updateProductDetail(productDetailId: number, updateProductDetail: UpdateProductDetail) {
+    return await this.productDetailRepo.update(productDetailId, updateProductDetail);
+  }
+
+  async deleteProductDetail(productDetailId: number) {
+    return await this.productDetailRepo.softDelete({ id: productDetailId });
+  }
+
+  async restoreProductDetail(productDetailId: number) {
+    return await this.productDetailRepo.restore({ id: productDetailId });
   }
 }

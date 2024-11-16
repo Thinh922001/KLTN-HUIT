@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { BrandController } from './brand.controller';
 import { BrandService } from './brand.service';
-import { BrandRepository } from '../../repositories';
+import { BrandRepository, ProductRepository } from '../../repositories';
 
 @Module({
   controllers: [BrandController],
-  providers: [BrandService, BrandRepository],
+  providers: [BrandService, BrandRepository, ProductRepository],
 })
 export class BrandModule {}

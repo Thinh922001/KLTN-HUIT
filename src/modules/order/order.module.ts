@@ -1,14 +1,25 @@
 import { Module } from '@nestjs/common';
-import { OrderService } from './order.service';
-import { OrderController } from './order.controller';
+import { JwtService } from '@nestjs/jwt';
+import { CouponRepository, InvoiceRepository, ProductDetailsRepository } from '../../repositories';
+import { OrderStatusHistoryRepository } from '../../repositories/order-status-history.repository';
 import { OrderRepository } from '../../repositories/order.repository';
+import { OptionalJwtGuard } from '../auth/strategies/jwt.straegy.optional';
 import { CartModule } from '../cart/cart.module';
 import { CouponModule } from '../coupon/coupon.module';
-import { OptionalJwtGuard } from '../auth/strategies/jwt.straegy.optional';
-import { JwtService } from '@nestjs/jwt';
+import { OrderController } from './order.controller';
+import { OrderService } from './order.service';
 
 @Module({
-  providers: [OrderService, OrderRepository, OptionalJwtGuard, JwtService],
+  providers: [
+    OrderService,
+    OrderRepository,
+    OptionalJwtGuard,
+    JwtService,
+    OrderStatusHistoryRepository,
+    ProductDetailsRepository,
+    CouponRepository,
+    InvoiceRepository,
+  ],
   controllers: [OrderController],
   imports: [CartModule, CouponModule],
 })

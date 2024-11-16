@@ -23,6 +23,7 @@ import { WebSocketModule } from '../src/Gateway/app.gateway.module';
 import { CouponModule } from './modules/coupon/coupon.module';
 import { OrderModule } from './modules/order/order.module';
 import { OrderDetailModule } from './modules/order-detail/order-detail.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { OrderDetailModule } from './modules/order-detail/order-detail.module';
     CouponModule,
     OrderModule,
     OrderDetailModule,
+    AdminModule,
   ],
   controllers: [],
 })

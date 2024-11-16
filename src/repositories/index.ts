@@ -18,3 +18,4 @@ export * from './cart-items.repository';
 export * from './coupon.repository';
 export * from './order.repository';
 export * from './order-detail.repository';
+export * from './invoice.repository';

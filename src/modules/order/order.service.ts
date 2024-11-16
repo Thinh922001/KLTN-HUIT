@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { OrderRepository } from '../../repositories';
+import {
+  CouponRepository,
+  InvoiceRepository,
+  OrderDetailRepository,
+  OrderRepository,
+  ProductDetailsRepository,
+} from '../../repositories';
 import { OrderDto } from './dto/order.dto';
 import {
   CartEntity,
@@ -20,6 +26,9 @@ import { CouponService } from '../coupon/coupon.service';
 import { OrderStatus, ShippingMethod } from '../../types';
 import { GetOrder, OrderUser } from './dto/get-order.dto';
 import { applyPagination, getTableName } from '../../utils/utils';
+import { GetOrderAd } from './dto/get-order-admin';
+import { UpdateOrderStatus } from './dto/update-order-status.dto';
+import { OrderStatusHistoryRepository } from '../../repositories/order-status-history.repository';
 
 @Injectable()
 export class OrderService {
@@ -33,7 +42,11 @@ export class OrderService {
   constructor(
     private readonly cartService: CartService,
     private readonly couponService: CouponService,
-    private readonly OrderRepo: OrderRepository
+    private readonly OrderRepo: OrderRepository,
+    private readonly productDetailRepo: ProductDetailsRepository,
+    private readonly couponRepo: CouponRepository,
+    private readonly invoiceRepo: InvoiceRepository,
+    private readonly orderHistoryRepo: OrderStatusHistoryRepository
   ) {
     this.productDetailAlias = getTableName(ProductDetailsEntity);
     this.productAlias = getTableName(ProductsEntity);
@@ -188,5 +201,120 @@ export class OrderService {
       .execute();
 
     return savedOrder;
+  }
+
+  async getOrderAd({ status, take, skip }: GetOrderAd) {
+    const query = this.OrderRepo.createQueryBuilder(this.orderAlias)
+      .leftJoin(`${this.orderAlias}.customer`, this.userAlias)
+      .select([
+        `${this.orderAlias}.id`,
+        `${this.orderAlias}.status`,
+        `${this.orderAlias}.total_amount`,
+        `${this.orderAlias}.shipping_address`,
+        `${this.userAlias}.id`,
+        `${this.userAlias}.name`,
+      ]);
+
+    if (status) {
+      query.andWhere(`${this.orderAlias}.status =:status`, { status });
+    }
+
+    const { data, paging } = await applyPagination<OrderEntity>(query, take, skip);
+
+    return {
+      data: data,
+      paging: paging,
+    };
+  }
+
+  async getOrderByUserId(userId: number) {
+    return await this.OrderRepo.createQueryBuilder(this.orderAlias)
+      .where(`${this.orderAlias}.customer_id =:userId`, { userId })
+      .select([
+        `${this.orderAlias}.id`,
+        `${this.orderAlias}.status`,
+        `${this.orderAlias}.total_amount`,
+        `${this.orderAlias}.shipping_address`,
+      ])
+      .getMany();
+  }
+
+  @Transactional()
+  async updateOrderStatus({ status, orderId }: UpdateOrderStatus) {
+    const order = await this.OrderRepo.createQueryBuilder(this.orderAlias)
+      .where(`${this.orderAlias}.id =:orderId`, { orderId })
+      .leftJoin(`${this.orderAlias}.orderDetails`, this.orderDetailAlias)
+      .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
+      .leftJoin(`${this.orderAlias}.coupon`, this.couponAlias)
+      .leftJoin(`${this.orderAlias}.customer`, this.userAlias)
+      .select([
+        `${this.orderAlias}.id`,
+        `${this.orderAlias}.status`,
+        `${this.orderAlias}.total_amount`,
+        `${this.couponAlias}.id`,
+        `${this.userAlias}.id`,
+        `${this.orderDetailAlias}.id`,
+        `${this.orderDetailAlias}.quantity`,
+        `${this.productDetailAlias}.id`,
+      ])
+      .getOne();
+
+    if (!order) {
+      throw new BadRequestException(ErrorMessage.ORDER_NOT_FOUND);
+    }
+
+    if (order.status === status) {
+      throw new BadRequestException(ErrorMessage.ORDER_STATUS_NOT_CHANGE);
+    }
+
+    if (
+      order.status === OrderStatus.CANCELLED ||
+      order.status === OrderStatus.RETURNED ||
+      order.status === OrderStatus.DELIVERED
+    ) {
+      throw new BadRequestException(ErrorMessage.ORDER_STATUS_CANNOT_UPDATE);
+    }
+
+    // refund stock, coupon
+    if (status === OrderStatus.CANCELLED || status === OrderStatus.RETURNED) {
+      if (order.orderDetails?.length) {
+        const updateOderDetailStock = order.orderDetails.map((e) =>
+          this.productDetailRepo.update(e.sku.id, {
+            stock: () => `stock + ${e.quantity}`,
+          })
+        );
+
+        if (order.coupon) {
+          const updateCoupon = this.couponRepo.update(order.coupon.id, {
+            times_used: () => `times_used - 1`,
+          });
+          await Promise.all([...updateOderDetailStock, updateCoupon]);
+        } else {
+          await Promise.all(updateOderDetailStock);
+        }
+      }
+    }
+
+    // create an invoice
+    if (status === OrderStatus.DELIVERED) {
+      await this.invoiceRepo.save(
+        this.invoiceRepo.create({
+          order: { id: orderId },
+          customer: { id: order.customer.id },
+          total_amount: order.total_amount,
+          payment_method: 'CASH',
+          status: 'PAID',
+        })
+      );
+    }
+
+    const saveOrderHistory = this.orderHistoryRepo.save(
+      this.orderHistoryRepo.create({ status: status, order: { id: orderId } })
+    );
+    const updateOrder = this.OrderRepo.update(orderId, { status: status });
+
+    await Promise.all([saveOrderHistory, updateOrder]);
+
+    return [];
   }
 }

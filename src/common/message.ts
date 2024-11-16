@@ -38,6 +38,16 @@ export enum ErrorMessage {
   INVALID_COUPON = 'INVALID_COUPON',
   SOLD_OUT = 'SOLD_OUT',
   INVALID_UPDATE_USER = 'No fields provided for update',
+  INVALID_ADMIN = 'Invalid admin',
+  INVALID_ADMIN_ROLE = 'Invalid admin role',
+  ADMIN_EXISTED = 'Admin existed',
+  ADMIN_DELETE_SELF = 'admin delete self',
+  ORDER_STATUS_CANNOT_UPDATE = 'Order status cannot update',
+  ORDER_STATUS_NOT_CHANGE = 'Order status not change',
+  ORDER_NOT_FOUND = 'Order not found',
+  CATEGORY_CANNOT_DELETE = 'Category cannot delete',
+  Brand_CANNOT_DELETE = 'Brand cannot delete',
+  COUPON_CANNOT_DELETE = 'Coupon cannot delete',
 }
 
 export function getErrorMessage(error: ErrorMessage, param?: string): string {

@@ -1,6 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { BrandRepository, CateRepository, LabelProductRepository, ProductRepository } from '../../repositories';
-import { CateEntity, LabelEntity, LabelProductEntity, ProductsEntity } from '../../entities';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BrandRepository,
+  CateRepository,
+  LabelProductRepository,
+  ProductDetailsRepository,
+  ProductRepository,
+} from '../../repositories';
+import {
+  CateEntity,
+  LabelEntity,
+  LabelProductEntity,
+  ProductDetailsEntity,
+  ProductDetailsImgEntity,
+  ProductsEntity,
+} from '../../entities';
 import { GetCateDto, IOrderBy, ISearch } from '../category/dto/cate.dto';
 import { ProductDto } from './dto/product.dto';
 import { applyPagination, convertAnyTo } from '../../utils/utils';
@@ -9,6 +22,8 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { ProductDetailService } from '../product-detail/product-detail.service';
 import { LabelsService } from '../labels/labels.service';
 import { Transactional } from 'typeorm-transactional';
+import { UpdateProduct } from './dto/update-product.dto';
+import { GetProductDto } from './dto/get-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -16,11 +31,15 @@ export class ProductService {
   cateAlias: string;
   labelProductAlias: string;
   labelAlias: string;
+  productAlias: string;
+  productDetailAlias: string;
+  productDetailImg: string;
   constructor(
     private readonly productRepo: ProductRepository,
     private readonly brandRepo: BrandRepository,
     private readonly cateRepo: CateRepository,
     private readonly labelProductRepo: LabelProductRepository,
+    private readonly productDetailRepo: ProductDetailsRepository,
     private readonly productDetailService: ProductDetailService,
     private readonly labelService: LabelsService
   ) {
@@ -28,6 +47,9 @@ export class ProductService {
     this.cateAlias = CateEntity.name;
     this.labelProductAlias = LabelProductEntity.name;
     this.labelAlias = LabelEntity.name;
+    this.productAlias = ProductsEntity.name;
+    this.productDetailAlias = ProductDetailsEntity.name;
+    this.productDetailImg = ProductDetailsImgEntity.name;
   }
   public async getProductByCate({ cateId, take, skip, orderBy, filters }: GetCateDto) {
     const query = this.productRepo
@@ -195,5 +217,121 @@ export class ProductService {
       })
     );
     return await this.labelProductRepo.save(labelProducts);
+  }
+
+  @Transactional()
+  public async updateProductAdmin(productId: number, updateProductDto: UpdateProduct) {
+    let { brandId, cateId, labelsId, variants, ...updateEntity } = updateProductDto;
+
+    if (variants) {
+      throw new BadRequestException('Variant is not handle');
+    }
+
+    if (brandId) {
+      const newBrand = await this.brandRepo.findOne({ where: { id: brandId } });
+      if (!newBrand) {
+        throw new BadRequestException('Brand not found');
+      }
+
+      await this.productRepo.update(productId, {
+        brand: newBrand,
+      });
+    }
+
+    if (cateId) {
+      const newCate = await this.cateRepo.findOne({ where: { id: cateId } });
+
+      if (!newCate) {
+        throw new BadRequestException('Category not found');
+      }
+
+      await this.productRepo.update(productId, {
+        cate: newCate,
+      });
+    }
+
+    if (labelsId && labelsId.length > 0) {
+    }
+
+    return await this.updateProduct(productId, updateEntity);
+  }
+
+  public async getProduct({ cateId, brandId, take, skip }: GetProductDto) {
+    const query = this.productRepo
+      .createQueryBuilder(this.productAlias)
+      .withDeleted()
+      .select([
+        `${this.productAlias}.id`,
+        `${this.productAlias}.deletedAt`,
+        `${this.productAlias}.productName`,
+        `${this.productAlias}.product_code`,
+        `${this.productAlias}.img`,
+        `${this.productAlias}.tabs`,
+        `${this.productAlias}.totalVote`,
+        `${this.productAlias}.starRate`,
+        `${this.productAlias}.price`,
+        `${this.productAlias}.discountPercent`,
+        `${this.productAlias}.oldPrice`,
+      ]);
+
+    if (cateId) {
+      query.andWhere(`${this.productAlias}.cate_id =:cateId`, { cateId });
+    }
+
+    if (brandId) {
+      query.andWhere(`${this.productAlias}.brand_id =:brandId`, { brandId });
+    }
+
+    const { data, paging } = await applyPagination<ProductsEntity>(query, take, skip);
+
+    return {
+      data: data,
+      paging: paging,
+    };
+  }
+
+  async getProductByIdAdm(productId: number) {
+    const product = await this.productRepo
+      .createQueryBuilder(this.productAlias)
+      .withDeleted()
+      .where(`${this.productAlias}.id =:productId`, { productId })
+      .leftJoin(`${this.productAlias}.productDetails`, this.productDetailAlias)
+      .leftJoin(`${this.productDetailAlias}.productDetailsImg`, this.productDetailImg)
+      .select([
+        `${this.productAlias}.id`,
+        `${this.productAlias}.deletedAt`,
+        `${this.productAlias}.productName`,
+        `${this.productAlias}.product_code`,
+        `${this.productAlias}.img`,
+        `${this.productAlias}.tabs`,
+        `${this.productAlias}.totalVote`,
+        `${this.productAlias}.starRate`,
+        `${this.productAlias}.price`,
+        `${this.productAlias}.discountPercent`,
+        `${this.productAlias}.oldPrice`,
+        `${this.productDetailAlias}.id`,
+        `${this.productDetailAlias}.deletedAt`,
+        `${this.productDetailAlias}.price`,
+        `${this.productDetailAlias}.oldPrice`,
+        `${this.productDetailAlias}.discountPercent`,
+        `${this.productDetailAlias}.stock`,
+        `${this.productDetailImg}.id`,
+        `${this.productDetailImg}.img`,
+      ])
+      .getOne();
+
+    return product;
+  }
+
+  @Transactional()
+  async deleteProduct(productId: number) {
+    await this.productRepo.softDelete({ id: productId });
+    await this.productDetailRepo.softDelete({ product: { id: productId } });
+  }
+
+  @Transactional()
+  async undoDeleteProduct(productId: number) {
+    await this.productRepo.restore({ id: productId });
+    await this.productDetailRepo.restore({ product: { id: productId } });
   }
 }
