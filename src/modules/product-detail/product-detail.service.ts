@@ -147,11 +147,13 @@ export class ProductDetailService {
   async getProductDetailFromVariant({ variation, productId }: GetDetailProduct) {
     const query = this.productDetailRepo
       .createQueryBuilder(this.productDeAlias)
+      .withDeleted()
       .leftJoinAndSelect(`${this.productDeAlias}.productDetailsImg`, this.productDetailImgAs)
       .where(`${this.productDeAlias}.product_id = :productId`, { productId })
       .cache(true)
       .select([
         `${this.productDeAlias}.id`,
+        `${this.productDeAlias}.deletedAt`,
         `${this.productDeAlias}.stock`,
         `${this.productDeAlias}.variationDetails`,
         `${this.productDeAlias}.price`,

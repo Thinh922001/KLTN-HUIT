@@ -14,12 +14,14 @@ export class GetDetailProductRes {
   stock: number;
   variation?: Variant[];
   specifications?: ISpecifications[];
+  deletedAt: Date;
 
   constructor(productDetail: ProductDetailsEntity, product?: ProductsEntity) {
-    const { id, price, oldPrice, discountPercent, productDetailsImg, stock } = productDetail;
+    const { id, price, oldPrice, discountPercent, productDetailsImg, stock, deletedAt } = productDetail;
     this.id = id;
     this.price = price;
     this.stock = stock;
+    this.deletedAt = deletedAt;
     this.discount = oldPrice && discountPercent ? { OldPrice: oldPrice, discountPercent } : undefined;
     this.subImg = productDetailsImg?.map((e) => convertHttpToHttps(e.img)) || [];
 
