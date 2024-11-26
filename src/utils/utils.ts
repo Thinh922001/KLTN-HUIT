@@ -5,6 +5,7 @@ import { Variant } from '../vendors/base/type';
 import { CouponEntity } from '../entities';
 import { EntityTarget } from 'typeorm';
 import dataSource from '../../typeOrm.config';
+import { Stats } from '../modules/statistic/dto/invoice-statistic.dto';
 
 export async function saltHasPassword(num: number = 10) {
   const salt = await genSalt(num);
@@ -137,4 +138,21 @@ export const getTableName = <Entity>(entity: EntityTarget<Entity>): string => {
     throw new Error('DataSource chưa được khởi tạo');
   }
   return dataSource.getMetadata(entity).tableName;
+};
+
+export const getGroupByStats = (alias: string, { mode }: Stats): string => {
+  switch (mode) {
+    case 'DAY':
+      return `DATE_FORMAT(${alias}.createdAt, '%Y-%m-%d')`;
+    case 'WEEK':
+      return `DATE_FORMAT(${alias}.createdAt, '%Y-%u')`;
+    case 'MONTH':
+      return `DATE_FORMAT(${alias}.createdAt, '%Y-%m')`;
+    case 'QUARTER':
+      return `CONCAT(YEAR(${alias}.createdAt), '-Q', QUARTER(${alias}.createdAt))`;
+    case 'YEAR':
+      return `YEAR(${alias}.createdAt)`;
+    default:
+      throw new Error('Invalid mode');
+  }
 };

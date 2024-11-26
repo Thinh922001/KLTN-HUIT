@@ -295,7 +295,6 @@ export class OrderService {
       }
     }
 
-    // create an invoice
     if (status === OrderStatus.DELIVERED) {
       await this.invoiceRepo.save(
         this.invoiceRepo.create({

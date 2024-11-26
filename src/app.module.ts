@@ -24,6 +24,7 @@ import { CouponModule } from './modules/coupon/coupon.module';
 import { OrderModule } from './modules/order/order.module';
 import { OrderDetailModule } from './modules/order-detail/order-detail.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { StatisticModule } from './modules/statistic/statistic.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { AdminModule } from './modules/admin/admin.module';
     OrderModule,
     OrderDetailModule,
     AdminModule,
+    StatisticModule,
   ],
   controllers: [],
 })

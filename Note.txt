@@ -1,0 +1,54 @@
+Tất cả truyền accessToken và apikey : x-api-key = tXHD34(w3beS+dTrGUDbjweg2L(QfK 
+từ api login không truyền accessToken chỉ truyền apikey
+
+CMS:
+    auth:
+        login admin 
+        register admin : chỉ supper admin(role_name = supperAdmin) mới đc đăng ký *
+        deleteAccount : chỉ supper admin(role_name = supperAdmin) mới đc deleteAccount delete là xóa luôn *
+        refresh_token_admin 
+        get list Admin 
+
+    user:
+        getAllUser 
+        getUserByUserId 
+        updateUser 
+        deleteUser 
+        undo_deleteUser : khi xóa user rồi muốn user hết bị xóa call api này 
+    product:
+        createProduct: *
+        getProduct : bằng cate hoặc brand không truyền là get all 
+        getProductById : trả về tất cả sản phẩm cha con hình 
+        deleteProduct : xóa sản phẩm cha và con 
+        un_deleteProduct : khi xóa product rồi muốn product hết bị xóa call api này 
+        updateProduct : update sản phẩm cha trừ không đụng tới ( variant phần này khó xử lý sau ) 
+        uploadImgProduct 
+        changeImgProduct 
+    productDetail
+        getProductDetail : truyền vào productDetailId  
+        uploadImgProductDetail 
+        deleteImgProductDetail : truyền vào productDetailId và productDetailImgId 
+        updateProductDetail : update stock và giá và giảm giá, xóa hoặc thêm hình ảnh ( không đụng tới variant) 
+        deleteProductDetail : xóa productDetail ( Xóa mềm ) 
+        un_deleteProductDetail : xóa rồi muốn hoàn tác lại call api này 
+    order
+        getAllOrder : get all hoặc lọc theo (Pending , Confirmed , Shipped, Delivered, Cancelled, Returned) 
+        getOrderByUser: truyền vào userId 
+        getOrderDetail : truyền vào orderId 
+        updateOrderStatus: cập nhật trạng thái đơn hàng (Pending , Confirmed , Shipped, Delivered, Cancelled, Returned , Refunded) khi trang thái là Delivered tạo một hóa đơn trong table invoices
+        Cancelled : hủy đơn hàng + 1 kho
+        Returned : đơn hàng trả lại + 1 kho 
+    cate(Danh mục : điện thoại, máy giặt)
+        createCate
+        updateCate
+        deleteCate : chỉ xóa đc khi chưa có khóa ngoại
+    brand( Nhãn hiệu : sony , samsung, apple)
+        createBrand
+        updateBrand
+        deleteBrand chỉ xóa đc khi chưa có khóa ngoại
+    coupon
+        createCoupon
+        updateCoupon
+        deleteCoupon chỉ xóa đc khi chưa có khóa ngoại
+    statistic(chưa xong)
+        statisticInvoice : thống kê tổng doanh thu hóa đơn theo ngày / tuần / quý / tháng / năm
