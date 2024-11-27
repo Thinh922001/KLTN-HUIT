@@ -79,6 +79,7 @@ export class ProductDetailService {
   async getDetailProduct({ productId }: GetDetailProduct) {
     const productQuery = this.productRepo
       .createQueryBuilder(this.productAlias)
+      .withDeleted()
       .leftJoinAndSelect(`${this.productAlias}.labelProducts`, this.labelProductAlias)
       .leftJoinAndSelect(`${this.labelProductAlias}.label`, this.labelAlias)
       .leftJoinAndSelect(`${this.productAlias}.cate`, this.cateAlias)
@@ -106,12 +107,14 @@ export class ProductDetailService {
 
     const productDetailQuery = this.productDetailRepo
       .createQueryBuilder(this.productDeAlias)
+      .withDeleted()
       .leftJoinAndSelect(`${this.productDeAlias}.productDetailsImg`, this.productDetailImgAs)
       .where(`${this.productDeAlias}.product_id = :productId`, { productId })
       .cache(true)
       .select([
         `${this.productDeAlias}.id`,
         `${this.productDeAlias}.stock`,
+        `${this.productAlias}.deletedAt`,
         `${this.productDeAlias}.variationDetails`,
         `${this.productDeAlias}.price`,
         `${this.productDeAlias}.oldPrice`,
