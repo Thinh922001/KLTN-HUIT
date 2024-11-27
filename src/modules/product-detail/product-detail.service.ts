@@ -114,7 +114,7 @@ export class ProductDetailService {
       .select([
         `${this.productDeAlias}.id`,
         `${this.productDeAlias}.stock`,
-        `${this.productAlias}.deletedAt`,
+        `${this.productDeAlias}.deletedAt`,
         `${this.productDeAlias}.variationDetails`,
         `${this.productDeAlias}.price`,
         `${this.productDeAlias}.oldPrice`,
