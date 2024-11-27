@@ -13,6 +13,7 @@ import {
 } from '../../repositories';
 import { ProductDetailService } from '../product-detail/product-detail.service';
 import { LabelsService } from '../labels/labels.service';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
   controllers: [CategoryController],
@@ -29,5 +30,6 @@ import { LabelsService } from '../labels/labels.service';
     LabelRepository,
     LabelProductRepository,
   ],
+  imports: [CloudinaryModule],
 })
 export class CategoryModule {}

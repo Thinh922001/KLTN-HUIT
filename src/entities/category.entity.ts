@@ -13,6 +13,14 @@ export class CateEntity extends AbstractEntity {
   })
   name: string;
 
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    name: 'img',
+  })
+  img: string;
+
   @OneToMany(() => ProductsEntity, (products) => products.cate)
   products: ProductsEntity[];
 }

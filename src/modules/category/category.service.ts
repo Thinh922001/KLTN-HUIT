@@ -21,7 +21,7 @@ export class CategoryService {
   async getAllCate() {
     return await this.cateRepo
       .createQueryBuilder(this.cateAlias)
-      .select([`${this.cateAlias}.id`, `${this.cateAlias}.name`])
+      .select([`${this.cateAlias}.id`, `${this.cateAlias}.name`, `${this.cateAlias}.img`])
       .getMany();
   }
 
@@ -41,5 +41,27 @@ export class CategoryService {
     }
 
     return await this.cateRepo.delete(cateId);
+  }
+
+  public async getCateById(cateId: number) {
+    const product = await this.cateRepo.findOne({
+      where: { id: cateId },
+      select: ['id'],
+    });
+
+    if (!product) throw new Error('Cate not Found');
+    return product;
+  }
+
+  public async updateCateUser(id: number, updateData: Partial<CateEntity>): Promise<CateEntity> {
+    await this.cateRepo.update(id, updateData);
+    return await this.cateRepo.findOne({ where: { id } });
+  }
+
+  async getAllCateUser() {
+    return await this.cateRepo
+      .createQueryBuilder(this.cateAlias)
+      .select([`${this.cateAlias}.id`, `${this.cateAlias}.name`, `${this.cateAlias}.img`])
+      .getMany();
   }
 }
