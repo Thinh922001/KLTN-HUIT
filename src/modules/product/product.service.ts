@@ -339,12 +339,10 @@ export class ProductService {
     try {
       const query = this.productRepo
         .createQueryBuilder(this.productAlias)
-        .innerJoin(
-          `${this.entityAlias}.labelProducts`,
-          this.labelProductAlias,
-          `${this.labelProductAlias}.product_id = ${this.entityAlias}.id`
-        )
-        .innerJoin(`${this.labelProductAlias}.label`, this.labelAlias)
+        .withDeleted()
+        .leftJoin(`${this.entityAlias}.labelProducts`, this.labelProductAlias)
+        .leftJoin(`${this.labelProductAlias}.label`, this.labelAlias)
+        .take(30)
         .select([
           `${this.entityAlias}.id`,
           `${this.entityAlias}.createdAt`,
@@ -362,11 +360,12 @@ export class ProductService {
           `${this.labelAlias}.type`,
         ])
         .orderBy('RAND()')
-        .limit(30)
         .cache('random_products_cache', 86400000);
 
       const data = await query.getMany();
-      return (data && data.map((e) => new ProductDto(e))) || [];
+
+      console.log(data.length);
+      return (data && data.map((e) => new ProductDto(e))).sort((a, b) => a.id - b.id) || [];
     } catch (error) {
       console.error('Lỗi khi thực thi query getRandomProduct:', error);
       return [];
