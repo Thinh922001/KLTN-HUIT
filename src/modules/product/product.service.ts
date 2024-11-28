@@ -17,7 +17,7 @@ import {
 import { GetCateDto, IOrderBy, ISearch } from '../category/dto/cate.dto';
 import { ProductDto } from './dto/product.dto';
 import { applyPagination, convertAnyTo } from '../../utils/utils';
-import { SelectQueryBuilder } from 'typeorm';
+import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductDetailService } from '../product-detail/product-detail.service';
 import { LabelsService } from '../labels/labels.service';
@@ -333,5 +333,43 @@ export class ProductService {
   async undoDeleteProduct(productId: number) {
     await this.productRepo.restore({ id: productId });
     await this.productDetailRepo.restore({ product: { id: productId } });
+  }
+
+  async getRandomProduct() {
+    try {
+      const query = this.productRepo
+        .createQueryBuilder(this.productAlias)
+        .innerJoin(
+          `${this.entityAlias}.labelProducts`,
+          this.labelProductAlias,
+          `${this.labelProductAlias}.product_id = ${this.entityAlias}.id`
+        )
+        .innerJoin(`${this.labelProductAlias}.label`, this.labelAlias)
+        .select([
+          `${this.entityAlias}.id`,
+          `${this.entityAlias}.createdAt`,
+          `${this.entityAlias}.productName`,
+          `${this.entityAlias}.img`,
+          `${this.entityAlias}.textOnlineType`,
+          `${this.entityAlias}.tabs`,
+          `${this.entityAlias}.totalVote`,
+          `${this.entityAlias}.starRate`,
+          `${this.entityAlias}.price`,
+          `${this.entityAlias}.oldPrice`,
+          `${this.entityAlias}.discountPercent`,
+          `${this.labelProductAlias}.id`,
+          `${this.labelAlias}.text`,
+          `${this.labelAlias}.type`,
+        ])
+        .orderBy('RAND()')
+        .limit(30)
+        .cache('random_products_cache', 86400000);
+
+      const data = await query.getMany();
+      return (data && data.map((e) => new ProductDto(e))) || [];
+    } catch (error) {
+      console.error('Lỗi khi thực thi query getRandomProduct:', error);
+      return [];
+    }
   }
 }

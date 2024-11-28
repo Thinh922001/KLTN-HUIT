@@ -4,7 +4,7 @@ type TimeUnit = 'minutes' | 'hours' | 'days' | 'seconds' | 'weeks' | 'months' | 
 
 const TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
-const TIME_ZONE = process.env.TIME_ZONE || 'UTC';
+export const TIME_ZONE = process.env.TIME_ZONE || 'UTC';
 
 export const getAdjustedTimeWithTimeZone = (amount: number = 0, unit: TimeUnit = 'minutes'): string => {
   if (!moment.tz.zone(TIME_ZONE)) {

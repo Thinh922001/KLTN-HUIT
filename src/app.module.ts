@@ -25,6 +25,8 @@ import { OrderModule } from './modules/order/order.module';
 import { OrderDetailModule } from './modules/order-detail/order-detail.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { StatisticModule } from './modules/statistic/statistic.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronModule } from './modules/cron/cron.module';
 
 @Module({
   imports: [
@@ -39,6 +41,7 @@ import { StatisticModule } from './modules/statistic/statistic.module';
         return addTransactionalDataSource(dataSource);
       },
     }),
+    ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
     ProvinceModule,
@@ -61,6 +64,7 @@ import { StatisticModule } from './modules/statistic/statistic.module';
     OrderDetailModule,
     AdminModule,
     StatisticModule,
+    CronModule,
   ],
   controllers: [],
 })

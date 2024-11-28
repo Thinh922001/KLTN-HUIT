@@ -29,5 +29,6 @@ import { LabelsService } from '../labels/labels.service';
     LabelProductRepository,
   ],
   imports: [CloudinaryModule],
+  exports: [ProductService],
 })
 export class ProductModule {}

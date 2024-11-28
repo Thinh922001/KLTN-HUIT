@@ -37,6 +37,12 @@ export class ProductController extends BaseController {
     return this.response(data);
   }
 
+  @Get('/random')
+  async getRandomProduct() {
+    const data = await this.productService.getRandomProduct();
+    return this.response(data);
+  }
+
   @Get(':id')
   @UseGuards(ApiKeyGuard)
   @UseGuards(AdminAuthGuard)
