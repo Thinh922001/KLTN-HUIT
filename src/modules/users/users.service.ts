@@ -188,6 +188,7 @@ export class UsersService {
         `${this.userAlias}.id`,
         `${this.userAlias}.name`,
         `${this.userAlias}.phone`,
+        `${this.userAlias}.gender`,
         `${this.userCodeAlias}.id`,
         `${this.userCodeAlias}.expiration_date`,
         `${this.userCodeAlias}.code`,
@@ -220,6 +221,7 @@ export class UsersService {
       user: {
         id: userWithCode.id,
         name: userWithCode?.name || hidePhoneNumber(userWithCode.phone),
+        gender: userWithCode.gender || 'male',
       },
       auth,
     };
