@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CateRepository, ProductRepository } from '../../repositories';
 import { CreateCateDto } from './dto/create-cate.dto';
-import { CateEntity } from '../../entities';
+import { CateEntity, ProductsEntity } from '../../entities';
 import { UpdateCateDto } from './dto/update-cate.dto';
 import { Transactional } from 'typeorm-transactional';
 import { BadRequestException } from '../../vendors/exceptions/errors.exception';
@@ -11,8 +11,10 @@ import { convertHttpToHttps } from '../../utils/utils';
 @Injectable()
 export class CategoryService {
   cateAlias: string;
+  productAlias: string;
   constructor(private readonly cateRepo: CateRepository, private readonly productRepo: ProductRepository) {
     this.cateAlias = CateEntity.name;
+    this.productAlias = ProductsEntity.name;
   }
 
   async createCate({ name }: CreateCateDto) {
@@ -60,16 +62,23 @@ export class CategoryService {
   }
 
   async getAllCateUser() {
-    return (
-      await this.cateRepo
-        .createQueryBuilder(this.cateAlias)
-        .select([`${this.cateAlias}.id`, `${this.cateAlias}.name`, `${this.cateAlias}.img`])
-        .getMany()
-    ).map((e) => {
-      return {
-        ...e,
-        img: convertHttpToHttps(e.img),
-      };
-    });
+    const subQuery = this.productRepo
+      .createQueryBuilder(`${this.productAlias}sub`)
+      .select('1')
+      .where(`${this.productAlias}sub.cate_id = ${this.cateAlias}.id`);
+
+    const query = this.cateRepo
+      .createQueryBuilder(this.cateAlias)
+      .select([`${this.cateAlias}.id`, `${this.cateAlias}.name`, `${this.cateAlias}.img`])
+      .andWhere(`EXISTS (${subQuery.getQuery()})`)
+      .setParameters(subQuery.getParameters())
+      .cache(60);
+
+    const data = await query.getMany();
+
+    return data.map((e) => ({
+      ...e,
+      img: e.img ? convertHttpToHttps(e.img) : null,
+    }));
   }
 }
