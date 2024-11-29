@@ -6,6 +6,7 @@ import { UpdateCateDto } from './dto/update-cate.dto';
 import { Transactional } from 'typeorm-transactional';
 import { BadRequestException } from '../../vendors/exceptions/errors.exception';
 import { ErrorMessage } from '../../common/message';
+import { convertHttpToHttps } from '../../utils/utils';
 
 @Injectable()
 export class CategoryService {
@@ -59,9 +60,16 @@ export class CategoryService {
   }
 
   async getAllCateUser() {
-    return await this.cateRepo
-      .createQueryBuilder(this.cateAlias)
-      .select([`${this.cateAlias}.id`, `${this.cateAlias}.name`, `${this.cateAlias}.img`])
-      .getMany();
+    return (
+      await this.cateRepo
+        .createQueryBuilder(this.cateAlias)
+        .select([`${this.cateAlias}.id`, `${this.cateAlias}.name`, `${this.cateAlias}.img`])
+        .getMany()
+    ).map((e) => {
+      return {
+        ...e,
+        img: convertHttpToHttps(e.img),
+      };
+    });
   }
 }
