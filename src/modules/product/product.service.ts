@@ -364,8 +364,7 @@ export class ProductService {
 
       const data = await query.getMany();
 
-      console.log(data.length);
-      return (data && data.map((e) => new ProductDto(e))).sort((a, b) => a.id - b.id) || [];
+      return (data && data.map((e) => new ProductDto(e))) || [];
     } catch (error) {
       console.error('Lỗi khi thực thi query getRandomProduct:', error);
       return [];
