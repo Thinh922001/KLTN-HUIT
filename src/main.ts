@@ -8,7 +8,12 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   initializeTransactionalContext();
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  app.enableCors({
+    origin: ['http://localhost:5173', 'kltn-huit-production.up.railway.app'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Authorization, x-api-key',
+    credentials: true,
+  });
   app.use(compression());
   app.use(helmet());
   app.useGlobalPipes(new ValidationPipe());
