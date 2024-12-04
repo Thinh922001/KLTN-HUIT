@@ -72,7 +72,6 @@ export class CouponService {
       .createQueryBuilder(this.couponAlias)
       .select([
         `${this.couponAlias}.id`,
-        `${this.couponAlias}.code`,
         `${this.couponAlias}.discount_type`,
         `${this.couponAlias}.discount_value`,
         `${this.couponAlias}.expiration_date`,
