@@ -14,7 +14,7 @@ async function bootstrap() {
         !origin ||
         origin.includes('localhost') ||
         origin === 'https://kltn-huit-fe.vercel.app' ||
-        origin === 'https://kltn-cms-web.vercel.app/'
+        origin === 'https://kltn-cms-web.vercel.app'
       ) {
         callback(null, true);
       } else {
