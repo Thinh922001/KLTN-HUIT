@@ -10,7 +10,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin || origin.includes('localhost') || origin === 'https://kltn-huit-fe.vercel.app') {
+      if (
+        !origin ||
+        origin.includes('localhost') ||
+        origin === 'https://kltn-huit-fe.vercel.app' ||
+        origin === 'https://kltn-cms-web.vercel.app/'
+      ) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
