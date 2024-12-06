@@ -34,7 +34,7 @@ export class PagingDto {
     this.skip = +pager.skip;
     this.take = +pager.take;
     this.total = total;
-    this.isNext = pager.skip + 1 < this.total;
+    this.isNext = this.skip + this.take < this.total;
     this.isPrev = pager.skip > 0;
     this.filters = filters || null;
     this.orders = orders || null;
