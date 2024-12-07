@@ -130,6 +130,16 @@ export class UsersService {
 
       const { id } = data;
 
+      const user = await this.userRepo.findOne({ where: { id: id }, select: ['id', 'refreshToken'] });
+
+      if (!user) {
+        throw new UnauthorizedException(ErrorMessage.USER_NOT_FOUND);
+      }
+
+      if (user.refreshToken !== refreshToken) {
+        throw new UnauthorizedException(ErrorMessage.INVALID_REFRESH_TOKEN);
+      }
+
       const authToken = this.createAuthToken({ id: id });
 
       return {
@@ -216,6 +226,10 @@ export class UsersService {
     const auth = this.createAuthToken({ id: userWithCode.id });
 
     await this.userCodeRepo.delete({ code: code });
+
+    await this.userRepo.update(userWithCode.id, {
+      refreshToken: auth.refreshToken,
+    });
 
     return {
       user: {

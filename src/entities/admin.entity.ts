@@ -36,4 +36,7 @@ export class AdminEntity extends AbstractEntity {
   @MaxLength(255, { message: 'The length must be less than 255 characters' })
   @Column({ type: 'varchar', length: 255, nullable: true })
   password: string;
+
+  @Column({ type: 'mediumtext', nullable: true, name: 'refresh_token' })
+  refreshToken: string;
 }

@@ -20,6 +20,7 @@ export class AdminService {
     this.adminAlias = AdminEntity.name;
   }
 
+  @Transactional()
   async Login({ email, password }: LoginDto) {
     const admin = await this.validateAdmin({ email, password });
 
@@ -30,6 +31,10 @@ export class AdminService {
     delete returnAdmin.deletedAt;
     delete returnAdmin.updatedAt;
     delete returnAdmin.password;
+
+    await this.adminRepo.update(returnAdmin.id, {
+      refreshToken: auth.refreshToken,
+    });
 
     return {
       auth: auth,
@@ -121,6 +126,16 @@ export class AdminService {
       }
 
       const { id } = data;
+
+      const admin = await this.adminRepo.findOne({ where: { id: id }, select: ['id', 'refreshToken'] });
+
+      if (!admin) {
+        throw new UnauthorizedException(ErrorMessage.INVALID_ADMIN);
+      }
+
+      if (admin.refreshToken !== refreshToken) {
+        throw new UnauthorizedException(ErrorMessage.INVALID_REFRESH_TOKEN);
+      }
 
       const authToken = this.createAuthToken({ id: id });
 
