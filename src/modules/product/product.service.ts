@@ -311,6 +311,7 @@ export class ProductService {
         `${this.productAlias}.oldPrice`,
         `${this.productDetailAlias}.id`,
         `${this.productDetailAlias}.deletedAt`,
+        `${this.productDetailAlias}.variationDetails`,
         `${this.productDetailAlias}.price`,
         `${this.productDetailAlias}.oldPrice`,
         `${this.productDetailAlias}.discountPercent`,
