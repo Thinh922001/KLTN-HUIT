@@ -185,6 +185,8 @@ export class UsersService {
 
     await this.userCodeRepo.save(userCode);
 
+    await this.snsService.sendSmsWithOtp(phone, code);
+
     return [];
   }
 
@@ -225,11 +227,12 @@ export class UsersService {
 
     const auth = this.createAuthToken({ id: userWithCode.id });
 
-    await this.userCodeRepo.delete({ code: code });
-
-    await this.userRepo.update(userWithCode.id, {
-      refreshToken: auth.refreshToken,
-    });
+    await Promise.all([
+      this.userCodeRepo.delete({ code }),
+      this.userRepo.update(userWithCode.id, {
+        refreshToken: auth.refreshToken,
+      }),
+    ]);
 
     return {
       user: {

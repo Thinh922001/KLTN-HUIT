@@ -29,6 +29,7 @@
     "copy:templates": "cpx './src/services/mail/templates/**' 'dist/src/services/mail/templates' --clean"
   },
   "dependencies": {
+    "@aws-sdk/client-sns": "^3.699.0",
     "@hapi/joi": "^17.1.1",
     "@nestjs/common": "^9.1.6",
     "@nestjs/config": "^2.2.0",
