@@ -185,7 +185,7 @@ export class UsersService {
 
     await this.userCodeRepo.save(userCode);
 
-    await this.snsService.sendSmsWithOtp(phone, code);
+    // await this.snsService.sendSmsWithOtp(phone, code);
 
     return [];
   }
