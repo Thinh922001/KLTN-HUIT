@@ -229,6 +229,7 @@ export class OrderService {
 
   async getOrderByUserId(userId: number) {
     return await this.OrderRepo.createQueryBuilder(this.orderAlias)
+      .withDeleted()
       .where(`${this.orderAlias}.customer_id =:userId`, { userId })
       .select([
         `${this.orderAlias}.id`,
@@ -259,6 +260,63 @@ export class OrderService {
       ])
       .getOne();
 
+    if (order.status === OrderStatus.PENDING) {
+      const invalidStatuses = [
+        OrderStatus.DELIVERED,
+        OrderStatus.PENDING,
+        OrderStatus.REFUNDED,
+        OrderStatus.SHIPPED,
+        OrderStatus.RETURNED,
+      ];
+
+      if (invalidStatuses.includes(status)) {
+        throw new BadRequestException(ErrorMessage.ORDER_STATUS_INVALID);
+      }
+    }
+
+    if (order.status === OrderStatus.CONFIRMED) {
+      const invalidStatuses = [
+        OrderStatus.DELIVERED,
+        OrderStatus.PENDING,
+        OrderStatus.REFUNDED,
+        OrderStatus.RETURNED,
+        OrderStatus.CONFIRMED,
+      ];
+
+      if (invalidStatuses.includes(status)) {
+        throw new BadRequestException(ErrorMessage.ORDER_STATUS_INVALID);
+      }
+    }
+
+    if (order.status === OrderStatus.SHIPPED) {
+      const invalidStatuses = [
+        OrderStatus.PENDING,
+        OrderStatus.REFUNDED,
+        OrderStatus.PENDING,
+        OrderStatus.SHIPPED,
+        OrderStatus.CANCELLED,
+      ];
+
+      if (invalidStatuses.includes(status)) {
+        throw new BadRequestException(ErrorMessage.ORDER_STATUS_INVALID);
+      }
+    }
+
+    if (order.status === OrderStatus.DELIVERED) {
+      const invalidStatuses = [
+        OrderStatus.RETURNED,
+        OrderStatus.PENDING,
+        OrderStatus.SHIPPED,
+        OrderStatus.CANCELLED,
+        OrderStatus.DELIVERED,
+        OrderStatus.CONFIRMED,
+      ];
+
+      if (invalidStatuses.includes(status)) {
+        throw new BadRequestException(ErrorMessage.ORDER_STATUS_INVALID);
+      }
+    }
+
     if (!order) {
       throw new BadRequestException(ErrorMessage.ORDER_NOT_FOUND);
     }
@@ -270,13 +328,13 @@ export class OrderService {
     if (
       order.status === OrderStatus.CANCELLED ||
       order.status === OrderStatus.RETURNED ||
-      order.status === OrderStatus.DELIVERED
+      order.status === OrderStatus.REFUNDED
     ) {
       throw new BadRequestException(ErrorMessage.ORDER_STATUS_CANNOT_UPDATE);
     }
 
     // refund stock, coupon
-    if (status === OrderStatus.CANCELLED || status === OrderStatus.RETURNED) {
+    if (status === OrderStatus.CANCELLED || status === OrderStatus.RETURNED || status === OrderStatus.REFUNDED) {
       if (order.orderDetails?.length) {
         const updateOderDetailStock = order.orderDetails.map((e) =>
           this.productDetailRepo.update(e.sku.id, {
@@ -305,6 +363,10 @@ export class OrderService {
           status: 'PAID',
         })
       );
+    }
+
+    if (status === OrderStatus.REFUNDED) {
+      await this.invoiceRepo.softDelete({ order: { id: orderId } });
     }
 
     const saveOrderHistory = this.orderHistoryRepo.save(

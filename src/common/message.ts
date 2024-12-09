@@ -48,6 +48,7 @@ export enum ErrorMessage {
   CATEGORY_CANNOT_DELETE = 'Category cannot delete',
   Brand_CANNOT_DELETE = 'Brand cannot delete',
   COUPON_CANNOT_DELETE = 'Coupon cannot delete',
+  ORDER_STATUS_INVALID = 'Order status invalid',
 }
 
 export function getErrorMessage(error: ErrorMessage, param?: string): string {
