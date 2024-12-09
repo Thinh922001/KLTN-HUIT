@@ -117,7 +117,6 @@ export class StatisticService {
   public async getRevenue({ mode, year, month, day, week, quarter }: Stats) {
     const query = this.invoiceRepo
       .createQueryBuilder(this.entityAlias)
-      .withDeleted()
       .select([`SUM(${this.entityAlias}.total_amount) as revenue`]);
 
     if (mode === 'TODAY') {
