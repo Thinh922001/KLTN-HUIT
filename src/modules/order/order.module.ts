@@ -8,8 +8,6 @@ import { CartModule } from '../cart/cart.module';
 import { CouponModule } from '../coupon/coupon.module';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
-import { MailModule } from '../mail/mail.module';
-import { AdminRepository } from '../../repositories/admin.repository';
 
 @Module({
   providers: [
@@ -21,9 +19,8 @@ import { AdminRepository } from '../../repositories/admin.repository';
     ProductDetailsRepository,
     CouponRepository,
     InvoiceRepository,
-    AdminRepository,
   ],
   controllers: [OrderController],
-  imports: [CartModule, CouponModule, MailModule],
+  imports: [CartModule, CouponModule],
 })
 export class OrderModule {}
