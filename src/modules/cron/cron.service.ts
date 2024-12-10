@@ -3,19 +3,10 @@ import { ProductService } from '../product/product.service';
 import { Cron } from '@nestjs/schedule';
 import { DataSource } from 'typeorm';
 import { TIME_ZONE } from '../../utils/date';
-import { StatisticService } from '../statistic/statistic.service';
-import { MailService } from '../mail/mail.service';
-import { AdminRepository } from '../../repositories/admin.repository';
 
 @Injectable()
 export class CronService {
-  constructor(
-    private readonly productService: ProductService,
-    private readonly statsService: StatisticService,
-    private readonly mailService: MailService,
-    private readonly dataSource: DataSource,
-    private readonly adminRepo: AdminRepository
-  ) {}
+  constructor(private readonly productService: ProductService, private readonly dataSource: DataSource) {}
 
   @Cron('0 0 * * *', {
     timeZone: TIME_ZONE,
@@ -40,46 +31,5 @@ export class CronService {
     } catch (error) {
       console.error('Lỗi trong refreshCache:', error);
     }
-  }
-
-  @Cron('59 23 * * *', {
-    timeZone: TIME_ZONE,
-  })
-  async reportDaily() {
-    console.log('Đang tạo báo cáo doanh thu ngày...');
-
-    // const today = new Date().toLocaleDateString('vi-VN');
-
-    // const [day, month, year] = today.split('/').map(Number);
-
-    // const [revenue, countRevenvue, topSelling] = await Promise.all([
-    //   this.statsService.getRevenue({ mode: 'DAY', year, month, day }),
-    //   this.statsService.countRevenueToday(),
-    //   this.statsService.getTopSelling({ mode: 'DAY', year, month, day }),
-    // ]);
-
-    // const topSellingResult: { name: string; quantity: number; productDetailId: number }[] = topSelling.map((e) => {
-    //   return {
-    //     name:
-    //       e.productName +
-    //       (e.variationDetail && e.variationDetail['color'] ? ` ${String(e.variationDetail['color'])}` : ''),
-    //     quantity: e.quantity,
-    //     productDetailId: e.productDetailId,
-    //   };
-    // });
-
-    // const admin = await this.adminRepo.find({ where: { roleName: 'SUPPER_ADMIN' } });
-    // if (admin.length) {
-    //   await this.mailService.sendDailyRevenueReport(
-    //     admin.map((e) => e.email),
-    //     {
-    //       totalSales: revenue,
-    //       totalOrders: countRevenvue,
-    //       topSellingResult,
-    //     }
-    //   );
-    // }
-
-    console.log('Báo cáo doanh thu ngày thành công');
   }
 }
