@@ -72,7 +72,7 @@ export class MailService {
         {
           headers: {
             'Content-Type': 'application/json',
-            'x-api-key': process.env.your_secure_api_key,
+            'x-api-key': process.env.API_KEY_MAIL,
           },
         }
       );
