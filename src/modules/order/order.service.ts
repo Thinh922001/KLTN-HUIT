@@ -25,10 +25,12 @@ import { ErrorMessage } from '../../common/message';
 import { CouponService } from '../coupon/coupon.service';
 import { OrderStatus, ShippingMethod } from '../../types';
 import { GetOrder, OrderUser } from './dto/get-order.dto';
-import { applyPagination, getTableName } from '../../utils/utils';
+import { applyPagination, convertHttpToHttps, getTableName } from '../../utils/utils';
 import { GetOrderAd } from './dto/get-order-admin';
 import { UpdateOrderStatus } from './dto/update-order-status.dto';
 import { OrderStatusHistoryRepository } from '../../repositories/order-status-history.repository';
+import { MailService } from '../mail/mail.service';
+import { AdminRepository } from '../../repositories/admin.repository';
 
 @Injectable()
 export class OrderService {
@@ -42,11 +44,13 @@ export class OrderService {
   constructor(
     private readonly cartService: CartService,
     private readonly couponService: CouponService,
+    private readonly mailService: MailService,
     private readonly OrderRepo: OrderRepository,
     private readonly productDetailRepo: ProductDetailsRepository,
     private readonly couponRepo: CouponRepository,
     private readonly invoiceRepo: InvoiceRepository,
-    private readonly orderHistoryRepo: OrderStatusHistoryRepository
+    private readonly orderHistoryRepo: OrderStatusHistoryRepository,
+    private readonly adminRepo: AdminRepository
   ) {
     this.productDetailAlias = getTableName(ProductDetailsEntity);
     this.productAlias = getTableName(ProductsEntity);
@@ -103,7 +107,7 @@ export class OrderService {
     let orderCustomer = user;
 
     if (!orderCustomer) {
-      orderCustomer = await userRepo.findOne({ where: { phone: auth.phone }, select: ['id'] });
+      orderCustomer = await userRepo.findOne({ where: { phone: auth.phone }, select: ['id', 'name', 'phone'] });
       if (!orderCustomer) {
         const userEntity = userRepo.create({
           phone: auth.phone,
@@ -119,7 +123,15 @@ export class OrderService {
       .createQueryBuilder(this.productDetailAlias)
       .leftJoin(`${this.productDetailAlias}.product`, this.productAlias)
       .where(`${this.productDetailAlias}.id IN(:...ids)`, { ids: carts.map((e) => e.id) })
-      .select([`${this.productDetailAlias}.id`, `${this.productDetailAlias}.price`, `${this.productDetailAlias}.stock`])
+      .select([
+        `${this.productDetailAlias}.id`,
+        `${this.productDetailAlias}.price`,
+        `${this.productDetailAlias}.stock`,
+        `${this.productDetailAlias}.variationDetails`,
+        `${this.productAlias}.id`,
+        `${this.productAlias}.productName`,
+        `${this.productAlias}.img`,
+      ])
       .getMany();
 
     if (!productDetail.length || productDetail.length !== carts.length) {
@@ -199,6 +211,36 @@ export class OrderService {
       .delete()
       .where('customer_id = :customerId', { customerId: orderCustomer.id })
       .execute();
+
+    const adminEmails = await this.adminRepo.find({ where: { roleName: 'SUPPER_ADMIN' } });
+
+    if (adminEmails.length) {
+      const emailList = adminEmails.map((e) => e.email);
+      const totalPrice = productDetail.reduce<number>((acc, item) => {
+        const cartItem = cartMap.get(item.id);
+        return cartItem ? acc + +item.price * cartItem.quantity : acc;
+      }, 0);
+
+      await this.mailService.sendNewOrderNotification(emailList, {
+        userName: orderCustomer.name,
+        phone: orderCustomer.phone,
+        totalPrice,
+        discountCode: coupon,
+        discountAmount: Number(totalPrice) - Number(couponData.totalAmount),
+        finalTotal: totalAmount,
+        orderId: `#${savedOrder.id}`,
+        products: productDetail.map((e) => {
+          return {
+            image: convertHttpToHttps(e.product.img),
+            name:
+              e.product.productName +
+              (e.variationDetails && e.variationDetails['color'] ? ` ${String(e.variationDetails['color'])}` : ''),
+            price: Number(e.price),
+            quantity: cartMap.get(e.id).quantity,
+          };
+        }),
+      });
+    }
 
     return savedOrder;
   }
