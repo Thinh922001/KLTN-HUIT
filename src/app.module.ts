@@ -27,7 +27,6 @@ import { AdminModule } from './modules/admin/admin.module';
 import { StatisticModule } from './modules/statistic/statistic.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronModule } from './modules/cron/cron.module';
-import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
@@ -66,7 +65,6 @@ import { MailModule } from './modules/mail/mail.module';
     AdminModule,
     StatisticModule,
     CronModule,
-    MailModule,
   ],
   controllers: [],
 })
