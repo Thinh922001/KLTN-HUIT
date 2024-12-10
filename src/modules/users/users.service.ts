@@ -185,7 +185,9 @@ export class UsersService {
 
     await this.userCodeRepo.save(userCode);
 
-    // await this.snsService.sendSmsWithOtp(phone, code);
+    if (phone == '0967611122') {
+      await this.snsService.sendSmsWithOtp(phone, code);
+    }
 
     return [];
   }
