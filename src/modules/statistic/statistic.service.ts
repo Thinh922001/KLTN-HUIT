@@ -3,6 +3,7 @@ import { getGroupByStats } from '../../utils/utils';
 import { InvoiceEntity, OrderDetailEntity, OrderEntity, ProductDetailsEntity, ProductsEntity } from '../../entities';
 import { InvoiceRepository } from '../../repositories';
 import { GetLowSelling, Stats } from './dto/invoice-statistic.dto';
+import { Between } from 'typeorm';
 
 @Injectable()
 export class StatisticService {
@@ -154,12 +155,25 @@ export class StatisticService {
       query.andWhere(`QUARTER(${this.entityAlias}.created_at) = :quarter`, { quarter });
     }
 
-    console.log(query.getQuery());
-
     const data = await query.getRawOne();
 
     return {
       revenue: +data.revenue,
     };
+  }
+
+  public async countRevenueToday() {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return await this.invoiceRepo.count({
+      where: {
+        createdAt: Between(startOfDay, endOfDay),
+        status: 'PAID',
+      },
+    });
   }
 }
