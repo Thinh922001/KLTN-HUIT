@@ -221,7 +221,8 @@ export class OrderService {
         return cartItem ? acc + +item.price * cartItem.quantity : acc;
       }, 0);
 
-      await this.mailService.sendNewOrderNotification(emailList, {
+      await this.mailService.sendOrderEmail({
+        adminEmails: emailList,
         userName: orderCustomer.name,
         phone: orderCustomer.phone,
         totalPrice,
