@@ -119,7 +119,7 @@ export class TopUpService {
         balance: amount,
       });
     } else {
-      wallet.balance += Number(amount);
+      wallet.balance = Number(wallet.balance) + Number(amount);
     }
 
     await this.walletRepository.save(wallet);
