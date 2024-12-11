@@ -1,0 +1,15 @@
+{
+    "partnerCode": "MOMO",
+    "orderId": "MOMO1733916847713",
+    "requestId": "MOMO1733916847713",
+    "amount": 1000,
+    "orderInfo": "pay with MoMo",
+    "orderType": "momo_wallet",
+    "transId": 3284002632,
+    "resultCode": 0,
+    "message": "Thành công.",
+    "payType": "qr",
+    "responseTime": 1733916875336,
+    "extraData": "",
+    "signature": "f6c2514b18df392417244df1130d2d85ac56f2ddbc1937efc0c4ffb5e162823e"
+}

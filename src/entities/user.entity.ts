@@ -9,6 +9,8 @@ import { UserCommentEntity } from './user-comment.entity';
 import { UserCodeEntity } from './user-code.entity';
 import { Gender } from '../types';
 import { UserReactionEntity } from './user-reaction.entity';
+import { WalletsEntity } from './wallets.entity';
+import { UserTransactionEntity } from './user-transaction.entity';
 
 @Entity('users')
 export class UserEntity extends AbstractEntity {
@@ -66,6 +68,12 @@ export class UserEntity extends AbstractEntity {
   @OneToOne(() => UserCodeEntity, (user_code) => user_code.user)
   userCode: UserCodeEntity;
 
+  @OneToOne(() => WalletsEntity, (wallet) => wallet.user)
+  wallet: WalletsEntity;
+
   @OneToMany(() => UserReactionEntity, (user_reaction) => user_reaction.user)
   reaction: UserReactionEntity[];
+
+  @OneToMany(() => UserTransactionEntity, (user_transaction) => user_transaction.user)
+  userTransactions: UserTransactionEntity[];
 }

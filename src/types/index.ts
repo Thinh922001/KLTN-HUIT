@@ -77,3 +77,19 @@ export enum OrderStatus {
    */
   REFUNDED = 'Refunded',
 }
+
+export interface MoMoResponse {
+  partnerCode: 'MOMO';
+  orderId: string;
+  requestId: string;
+  amount: number;
+  orderInfo: string;
+  orderType: 'momo_wallet';
+  transId: number;
+  resultCode: number;
+  message: string;
+  payType: 'qr';
+  responseTime: number;
+  extraData: string;
+  signature: string;
+}

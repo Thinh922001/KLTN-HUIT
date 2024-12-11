@@ -28,6 +28,7 @@ import { StatisticModule } from './modules/statistic/statistic.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronModule } from './modules/cron/cron.module';
 import { MailModule } from './modules/mail/mail.module';
+import { TopUpModule } from './modules/top-up/top-up.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { MailModule } from './modules/mail/mail.module';
     StatisticModule,
     CronModule,
     MailModule,
+    TopUpModule,
   ],
   controllers: [],
 })
