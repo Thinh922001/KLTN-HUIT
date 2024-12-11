@@ -227,7 +227,7 @@ export class OrderService {
         phone: orderCustomer.phone,
         totalPrice,
         discountCode: coupon,
-        discountAmount: Number(totalPrice) - Number(couponData.totalAmount),
+        discountAmount: Number(totalPrice) - (couponData ? Number(couponData.totalAmount) : 0),
         finalTotal: totalAmount,
         orderId: `#${savedOrder.id}`,
         products: productDetail.map((e) => {
