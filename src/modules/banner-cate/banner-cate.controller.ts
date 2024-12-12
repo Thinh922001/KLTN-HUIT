@@ -57,7 +57,7 @@ export class BannerCateController extends BaseController {
   @UseGuards(ApiKeyGuard)
   @UseGuards(AdminAuthGuard)
   async deleteBanner(@Body() body: { cateBannerId: number[] }) {
-    if (!body.cateBannerId.length) throw new BadRequestException('BannerId cannot be null');
+    if (!body.cateBannerId) throw new BadRequestException('BannerId cannot be null');
     const publicIds = await this.cateBannerService.getPublicId(body.cateBannerId);
     const delImgPromises = publicIds.map((e) => this.cloudinaryService.deleteImage(e));
     await Promise.all(delImgPromises);
