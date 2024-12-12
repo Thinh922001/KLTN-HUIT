@@ -18,8 +18,8 @@ export class CategoryService {
     this.productAlias = ProductsEntity.name;
   }
 
-  async createCate({ name }: CreateCateDto) {
-    return await this.cateRepo.save(this.cateRepo.create({ name }));
+  async createCate({ name, cateTypeId }: CreateCateDto) {
+    return await this.cateRepo.save(this.cateRepo.create({ name, cateType: { id: cateTypeId } }));
   }
 
   async getAllCate(body: GetAllCateDto) {
