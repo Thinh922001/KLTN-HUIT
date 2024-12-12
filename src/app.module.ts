@@ -29,6 +29,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { CronModule } from './modules/cron/cron.module';
 import { MailModule } from './modules/mail/mail.module';
 import { TopUpModule } from './modules/top-up/top-up.module';
+import { BannerModule } from './modules/banner/banner.module';
+import { BannerCateModule } from './modules/banner-cate/banner-cate.module';
+import { CateTypeModule } from './modules/cate-type/cate-type.module';
 
 @Module({
   imports: [
@@ -69,6 +72,9 @@ import { TopUpModule } from './modules/top-up/top-up.module';
     CronModule,
     MailModule,
     TopUpModule,
+    BannerModule,
+    BannerCateModule,
+    CateTypeModule,
   ],
   controllers: [],
 })

@@ -29,9 +29,10 @@ export class CategoryService {
   }
 
   @Transactional()
-  async updateCate({ cateId, name }: UpdateCateDto) {
+  async updateCate({ cateId, name, cateTypeId }: UpdateCateDto) {
     return await this.cateRepo.update(cateId, {
       name: name,
+      cateType: { id: cateTypeId ? cateTypeId : null },
     });
   }
 

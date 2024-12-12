@@ -5,7 +5,6 @@ import { BrandEntity } from './brand.entity';
 import { CateEntity } from './category.entity';
 import { ISpecifications, Variant } from '../vendors/base/type';
 import { ProductDetailsEntity } from './product-details.entity';
-import { GiftEntity } from './gift.entity';
 import { UserCommentEntity } from './user-comment.entity';
 
 @Entity('products')
@@ -96,9 +95,6 @@ export class ProductsEntity extends AbstractProduct {
 
   @OneToMany(() => ProductDetailsEntity, (productDetails) => productDetails.product)
   productDetails: ProductDetailsEntity[];
-
-  @OneToMany(() => GiftEntity, (gift) => gift.spu)
-  gifts: GiftEntity[];
 
   @OneToMany(() => UserCommentEntity, (comment) => comment.product)
   comment: UserCommentEntity[];

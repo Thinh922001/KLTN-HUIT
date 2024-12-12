@@ -1,5 +1,7 @@
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { AbstractEntity } from '../vendors/base/abtract.entity';
+import { CategoryTypeEntity } from './category-type.entity';
+import { CateBannerEntity } from './category-banner.entity';
 import { ProductsEntity } from './products.entity';
 
 @Entity('categories')
@@ -21,6 +23,13 @@ export class CateEntity extends AbstractEntity {
   })
   img: string;
 
-  @OneToMany(() => ProductsEntity, (products) => products.cate)
+  @ManyToOne(() => CategoryTypeEntity, (cate_type) => cate_type.category, { eager: true, nullable: true })
+  @JoinColumn({ name: 'cate_type_id', referencedColumnName: 'id' })
+  cateType: CategoryTypeEntity;
+
+  @OneToMany(() => CateBannerEntity, (cate_banner) => cate_banner.cate)
+  cateBanners: CateBannerEntity[];
+
+  @OneToMany(() => ProductsEntity, (product) => product.cate)
   products: ProductsEntity[];
 }

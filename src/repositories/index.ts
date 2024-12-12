@@ -19,3 +19,6 @@ export * from './coupon.repository';
 export * from './order.repository';
 export * from './order-detail.repository';
 export * from './invoice.repository';
+export * from './banner.repository';
+export * from './cate-banner.repository';
+export * from './cate-type.repository';
