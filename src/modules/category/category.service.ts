@@ -36,10 +36,12 @@ export class CategoryService {
 
   @Transactional()
   async updateCate({ cateId, name, cateTypeId }: UpdateCateDto) {
-    return await this.cateRepo.update(cateId, {
-      name: name,
-      cateType: { id: cateTypeId ? cateTypeId : null },
-    });
+    const updateData: any = { name };
+    if (cateTypeId) {
+      updateData.cateType = { id: cateTypeId };
+    }
+
+    return await this.cateRepo.update(cateId, updateData);
   }
 
   @Transactional()
