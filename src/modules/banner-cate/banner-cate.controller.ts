@@ -59,6 +59,7 @@ export class BannerCateController extends BaseController {
     const publicIds = await this.cateBannerService.getPublicId(body.cateBannerId);
     const delImgPromises = publicIds.map((e) => this.cloudinaryService.deleteImage(e));
     await Promise.all(delImgPromises);
+    await this.cateBannerService.deleteBanner(body.cateBannerId);
     return this.response([]);
   }
 }

@@ -3,6 +3,7 @@ import { Bannerpository } from '../../repositories';
 import { UploadApiResponse } from 'cloudinary';
 import { BannerEntity } from '../../entities';
 import { convertHttpToHttps } from '../../utils/utils';
+import { In } from 'typeorm';
 
 @Injectable()
 export class BannerService {
@@ -29,6 +30,10 @@ export class BannerService {
 
     if (!data || !data.length) return [];
     return data.map((e) => e.publicId);
+  }
+
+  async deleteBanner(imgId: number[]) {
+    return await this.bannerRepo.delete({ id: In(imgId) });
   }
 
   async getAllBanner(): Promise<string[]> {

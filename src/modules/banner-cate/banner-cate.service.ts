@@ -3,6 +3,7 @@ import { CateBannerRepository } from '../../repositories';
 import { CateBannerEntity } from '../../entities';
 import { UploadApiResponse } from 'cloudinary';
 import { convertHttpToHttps } from '../../utils/utils';
+import { In } from 'typeorm';
 
 @Injectable()
 export class BannerCateService {
@@ -45,5 +46,9 @@ export class BannerCateService {
 
     if (!data || !data.length) return [];
     return data.map((e) => e.publicId);
+  }
+
+  async deleteBanner(imgId: number[]) {
+    return await this.bannerCaterepo.delete({ id: In(imgId) });
   }
 }

@@ -54,6 +54,7 @@ export class BannerController extends BaseController {
     const publicIds = await this.bannerService.getPublicId(body.bannerId);
     const delImgPromises = publicIds.map((e) => this.cloudinaryService.deleteImage(e));
     await Promise.all(delImgPromises);
+    await this.bannerService.deleteBanner(body.bannerId);
     return this.response([]);
   }
 }
