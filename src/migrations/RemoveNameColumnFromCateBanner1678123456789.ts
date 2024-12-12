@@ -4,7 +4,7 @@ export class RemoveNameColumnFromCateBanner1678123456789 implements MigrationInt
   name = 'RemoveNameColumnFromCateBanner1678123456789';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TABLE IF EXISTS \`gift\`;`);
+    await queryRunner.query(`ALTER TABLE \`category_banner\` DROP COLUMN \`name\`;`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
