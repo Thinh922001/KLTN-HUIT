@@ -70,7 +70,7 @@ export class CategoryController extends BaseController {
   @Get('admin/category')
   @UseGuards(ApiKeyGuard)
   @UseGuards(AdminAuthGuard)
-  async getAllCate(@Body() body: GetAllCateDto) {
+  async getAllCate(@Query() body: GetAllCateDto) {
     const data = await this.cateService.getAllCate(body);
     return this.response(data);
   }
