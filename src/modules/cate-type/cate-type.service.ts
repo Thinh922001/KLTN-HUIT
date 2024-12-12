@@ -13,7 +13,7 @@ export class CateTypeService {
   }
 
   async getCateTypeUser() {
-    const data = this.cateTypeRepo
+    const data = await this.cateTypeRepo
       .createQueryBuilder(this.cateTypeAlias)
       .leftJoin(`${this.cateTypeAlias}.category`, this.cateAlias)
       .cache(true)
@@ -29,16 +29,16 @@ export class CateTypeService {
   }
 
   async getCateTypeAdmin() {
-    const data = this.cateTypeRepo
+    const data = await this.cateTypeRepo
       .createQueryBuilder(this.cateTypeAlias)
       .withDeleted()
       .leftJoin(`${this.cateTypeAlias}.category`, this.cateAlias)
       .select([
         `${this.cateTypeAlias}.id`,
-        `${this.cateTypeAlias}.deleted_at`,
+        `${this.cateTypeAlias}.deletedAt`,
         `${this.cateTypeAlias}.name`,
         `${this.cateAlias}.id`,
-        `${this.cateAlias}.deleted_at`,
+        `${this.cateAlias}.deletedAt`,
         `${this.cateAlias}.name`,
         `${this.cateAlias}.img`,
       ])
