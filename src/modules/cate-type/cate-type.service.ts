@@ -25,6 +25,7 @@ export class CateTypeService {
         `${this.cateAlias}.img`,
       ])
       .getMany();
+    return data;
   }
 
   async getCateTypeAdmin() {
@@ -42,6 +43,7 @@ export class CateTypeService {
         `${this.cateAlias}.img`,
       ])
       .getMany();
+    return data;
   }
 
   async createCateType({ name }: CreateCateTypeDto) {
