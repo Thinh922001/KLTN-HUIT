@@ -7,15 +7,6 @@ export class CateBannerEntity extends AbstractEntity {
   @Column({
     type: 'varchar',
     length: 255,
-    charset: 'utf8mb4',
-    collation: 'utf8mb4_unicode_ci',
-    nullable: false,
-  })
-  name: string;
-
-  @Column({
-    type: 'varchar',
-    length: 255,
     nullable: true,
     name: 'img',
   })
