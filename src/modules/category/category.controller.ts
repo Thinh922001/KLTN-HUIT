@@ -22,6 +22,7 @@ import { AdminAuthGuard } from '../../vendors/guards/admin/jwt-admin.guard';
 import { UpdateCateDto } from './dto/update-cate.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { GetAllCateDto } from './dto/get-all-cate.dto';
 
 @Controller()
 export class CategoryController extends BaseController {
@@ -69,8 +70,8 @@ export class CategoryController extends BaseController {
   @Get('admin/category')
   @UseGuards(ApiKeyGuard)
   @UseGuards(AdminAuthGuard)
-  async getAllCate() {
-    const data = await this.cateService.getAllCate();
+  async getAllCate(@Body() body: GetAllCateDto) {
+    const data = await this.cateService.getAllCate(body);
     return this.response(data);
   }
 

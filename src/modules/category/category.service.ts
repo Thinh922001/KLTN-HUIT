@@ -7,6 +7,7 @@ import { Transactional } from 'typeorm-transactional';
 import { BadRequestException } from '../../vendors/exceptions/errors.exception';
 import { ErrorMessage } from '../../common/message';
 import { convertHttpToHttps } from '../../utils/utils';
+import { GetAllCateDto } from './dto/get-all-cate.dto';
 
 @Injectable()
 export class CategoryService {
@@ -21,11 +22,16 @@ export class CategoryService {
     return await this.cateRepo.save(this.cateRepo.create({ name }));
   }
 
-  async getAllCate() {
-    return await this.cateRepo
+  async getAllCate(body: GetAllCateDto) {
+    const query = this.cateRepo
       .createQueryBuilder(this.cateAlias)
-      .select([`${this.cateAlias}.id`, `${this.cateAlias}.name`, `${this.cateAlias}.img`])
-      .getMany();
+      .select([`${this.cateAlias}.id`, `${this.cateAlias}.name`, `${this.cateAlias}.img`]);
+
+    if (body.cateTypeId) {
+      query.andWhere(`${this.cateAlias}.cate_type_id =:cateTypeId`, { cateTypeId: body.cateTypeId });
+    }
+
+    return await query.getMany();
   }
 
   @Transactional()
