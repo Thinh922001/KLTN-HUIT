@@ -71,7 +71,6 @@ export class CategoryController extends BaseController {
   @UseGuards(ApiKeyGuard)
   @UseGuards(AdminAuthGuard)
   async getAllCate(@Query() body: GetAllCateDto) {
-    console.log(body);
     const data = await this.cateService.getAllCate(body);
     return this.response(data);
   }
