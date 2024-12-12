@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class DropTableGift1680012345679 implements MigrationInterface {
-  name = 'DropTableGift1680012345679';
+export class RemoveNameColumnFromCateBanner1678123456789 implements MigrationInterface {
+  name = 'RemoveNameColumnFromCateBanner1678123456789';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP TABLE IF EXISTS \`gift\`;`);
