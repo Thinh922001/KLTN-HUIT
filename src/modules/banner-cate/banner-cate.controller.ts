@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Post,
+  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -15,6 +16,7 @@ import { ApiKeyGuard } from '../../vendors/guards/Api-key/api-key.guard';
 import { AdminAuthGuard } from '../../vendors/guards/admin/jwt-admin.guard';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { GetBannerDto } from './dto/get-banner.dto';
 
 @Controller('banner-cate')
 export class BannerCateController extends BaseController {
@@ -26,16 +28,16 @@ export class BannerCateController extends BaseController {
   }
 
   @Get()
-  async getBannerCate() {
-    const data = await this.cateBannerService.getCateBanner();
+  async getBannerCate(@Query() query: GetBannerDto) {
+    const data = await this.cateBannerService.getCateBanner(query);
     return this.response(data);
   }
 
   @Get('/admin')
   @UseGuards(ApiKeyGuard)
   @UseGuards(AdminAuthGuard)
-  async getBannerCateAdmin() {
-    const data = await this.cateBannerService.getCateBannerAdmin();
+  async getBannerCateAdmin(@Query() query: GetBannerDto) {
+    const data = await this.cateBannerService.getCateBannerAdmin(query);
     return this.response(data);
   }
 

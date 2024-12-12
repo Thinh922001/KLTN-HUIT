@@ -4,6 +4,7 @@ import { CateBannerEntity } from '../../entities';
 import { UploadApiResponse } from 'cloudinary';
 import { convertHttpToHttps } from '../../utils/utils';
 import { In } from 'typeorm';
+import { GetBannerDto } from './dto/get-banner.dto';
 
 @Injectable()
 export class BannerCateService {
@@ -12,19 +13,21 @@ export class BannerCateService {
     this.cateBannerAlias = CateBannerEntity.name;
   }
 
-  async getCateBanner() {
+  async getCateBanner({ cateId }: GetBannerDto) {
     const data = await this.bannerCaterepo
       .createQueryBuilder(this.cateBannerAlias)
       .select([`${this.cateBannerAlias}.img`])
+      .where(`${this.cateBannerAlias}.cate_id =:cateId`, { cateId })
       .cache(true)
       .getMany();
     return data.length ? data.map((e) => e.img) : [];
   }
 
-  async getCateBannerAdmin() {
+  async getCateBannerAdmin({ cateId }: GetBannerDto) {
     return await this.bannerCaterepo
       .createQueryBuilder(this.cateBannerAlias)
       .select([`${this.cateBannerAlias}.id`, `${this.cateBannerAlias}.img`])
+      .where(`${this.cateBannerAlias}.cate_id =:cateId`, { cateId })
       .getMany();
   }
 
