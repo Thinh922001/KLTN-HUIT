@@ -32,6 +32,7 @@ import { TopUpModule } from './modules/top-up/top-up.module';
 import { BannerModule } from './modules/banner/banner.module';
 import { BannerCateModule } from './modules/banner-cate/banner-cate.module';
 import { CateTypeModule } from './modules/cate-type/cate-type.module';
+import { WalletsModule } from './modules/wallets/wallets.module';
 
 @Module({
   imports: [
@@ -75,6 +76,7 @@ import { CateTypeModule } from './modules/cate-type/cate-type.module';
     BannerModule,
     BannerCateModule,
     CateTypeModule,
+    WalletsModule,
   ],
   controllers: [],
 })
