@@ -68,10 +68,12 @@ export class OrderService {
       .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
       .leftJoin(`${this.productDetailAlias}.product`, this.productAlias)
       .where(`${this.orderAlias}.customer_id = :userId`, { userId: user.id })
+      .orderBy(`${this.orderAlias}.createdAt`, 'DESC')
       .select([
         `${this.orderAlias}.id`,
         `${this.orderAlias}.status`,
         `${this.orderAlias}.total_amount`,
+        `${this.orderAlias}.createdAt`,
         `${this.orderDetailAlias}.id`,
         `${this.productDetailAlias}.id`,
         `${this.productDetailAlias}.variationDetails`,
