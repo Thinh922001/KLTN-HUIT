@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CateTypeRepository } from '../../repositories';
 import { CateEntity, CategoryTypeEntity } from '../../entities';
 import { CreateCateTypeDto, UpdateCateTypeDto } from './dto/creae-cate-type.dto';
+import { convertHttpToHttps } from 'src/utils/utils';
 
 @Injectable()
 export class CateTypeService {
@@ -25,7 +26,22 @@ export class CateTypeService {
         `${this.cateAlias}.img`,
       ])
       .getMany();
-    return data;
+
+    return data.length
+      ? data.map((e) => {
+          const updatedCategory = e.category.map((category) => {
+            if (category.img) {
+              category.img = convertHttpToHttps(category.img);
+            }
+            return category;
+          });
+
+          return {
+            ...e,
+            category: updatedCategory,
+          };
+        })
+      : [];
   }
 
   async getCateTypeAdmin() {
