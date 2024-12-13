@@ -90,12 +90,10 @@ export const generateSKUCode = (combination) => {
   return Object.values(combination).join('-').toUpperCase();
 };
 
-export const convertHttpToHttps = (url) => {
+export const convertHttpToHttps = (url: string) => {
   if (typeof url !== 'string') {
-    console.error('URL phải là một chuỗi.');
     return url;
   }
-  // Kiểm tra xem URL có bắt đầu bằng "http://" hay không
   if (url.startsWith('http://')) {
     return url.replace('http://', 'https://');
   }
