@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CateTypeRepository } from '../../repositories';
 import { CateEntity, CategoryTypeEntity } from '../../entities';
 import { CreateCateTypeDto, UpdateCateTypeDto } from './dto/creae-cate-type.dto';
-import { convertHttpToHttps } from 'src/utils/utils';
+import { convertHttpToHttps } from '../../utils/utils';
 
 @Injectable()
 export class CateTypeService {
