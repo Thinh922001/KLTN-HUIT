@@ -26,6 +26,7 @@ export class GetOrderResponse {
   receiveAt: string;
   totalAmount: number;
   finalAmount: number;
+  status: string;
   addressRecieve: string;
   isPaid: boolean;
   paymentMethod: string;
@@ -38,6 +39,7 @@ export class GetOrderResponse {
     }`;
     this.addressRecieve = orderEntity.shipping_address;
     this.id = orderEntity.id;
+    this.status = orderEntity.status;
     this.createdAt = formatDateTimeToVietnamTimezone(orderEntity.createdAt.toISOString());
     this.receiveDate = formatDateTimeToVietnamTimezone(orderEntity.updatedAt.toISOString());
     this.createdAt = orderEntity.shipping_address;
