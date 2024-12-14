@@ -84,6 +84,7 @@ export class OrderDetailService {
         `${this.orderAlias}.updatedAt`,
         `${this.orderAlias}.createdAt`,
         `${this.orderAlias}.total_amount`,
+        `${this.orderAlias}.status`,
         `${this.invoiceAlias}.id`,
         `${this.invoiceAlias}.payment_method`,
         `${this.userAlias}.id`,
