@@ -34,7 +34,7 @@ export class GetOrderResponse {
     this.createdAt = formatDateTimeToVietnamTimezone(orderEntity.createdAt.toISOString());
     this.receiveDate = formatDateTimeToVietnamTimezone(orderEntity.updatedAt.toISOString());
     this.createdAt = orderEntity.shipping_address;
-    this.totalAmount = orderEntity.orderDetails.reduce<number>((acc, item) => acc + item.total_price, 0);
+    this.totalAmount = orderEntity.orderDetails.reduce<number>((acc, item) => acc + Number(item.total_price), 0);
     this.finalAmount = orderEntity.total_amount;
     this.items = orderEntity.orderDetails.map((e) => {
       const color =
