@@ -62,8 +62,9 @@ export class GetOrderResponse {
       };
     });
     if (orderEntity.invoices[0]) {
-      this.isPaid = orderEntity.invoices[0].status === 'PAID';
-      this.paymentMethod = orderEntity.invoices[0].payment_method;
+      const invoice = orderEntity.invoices.find((e) => e.status === 'PAID');
+      this.isPaid = Boolean(invoice);
+      this.paymentMethod = invoice?.payment_method || null;
     } else {
       this.isPaid = false;
       this.paymentMethod = '';
