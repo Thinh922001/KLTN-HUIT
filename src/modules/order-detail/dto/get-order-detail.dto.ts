@@ -16,6 +16,7 @@ export class Item {
 }
 
 export class GetOrderResponse {
+  id: number;
   name: string;
   createdAt: string;
   receiveDate: string;
@@ -29,6 +30,7 @@ export class GetOrderResponse {
     this.name = `${gender} ${orderEntity.customer.name} - ${
       orderEntity.customer?.phone ? orderEntity.customer?.phone : ''
     }`;
+    this.id = orderEntity.id;
     this.createdAt = formatDateTimeToVietnamTimezone(orderEntity.createdAt.toISOString());
     this.receiveDate = formatDateTimeToVietnamTimezone(orderEntity.updatedAt.toISOString());
     this.createdAt = orderEntity.shipping_address;
