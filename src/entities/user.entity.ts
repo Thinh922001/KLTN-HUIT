@@ -11,6 +11,7 @@ import { Gender } from '../types';
 import { UserReactionEntity } from './user-reaction.entity';
 import { WalletsEntity } from './wallets.entity';
 import { UserTransactionEntity } from './user-transaction.entity';
+import { ReturnOrderEntity } from './return-order.entity';
 
 @Entity('users')
 export class UserEntity extends AbstractEntity {
@@ -76,4 +77,7 @@ export class UserEntity extends AbstractEntity {
 
   @OneToMany(() => UserTransactionEntity, (user_transaction) => user_transaction.user)
   userTransactions: UserTransactionEntity[];
+
+  @OneToMany(() => ReturnOrderEntity, (return_order) => return_order.user)
+  returnOrders: ReturnOrderEntity[];
 }

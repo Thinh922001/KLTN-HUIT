@@ -11,6 +11,8 @@ import { GetOrderAd } from './dto/get-order-admin';
 import { ApiKeyGuard } from '../../vendors/guards/Api-key/api-key.guard';
 import { AdminAuthGuard } from '../../vendors/guards/admin/jwt-admin.guard';
 import { UpdateOrderStatus } from './dto/update-order-status.dto';
+import { PayMentDto } from './dto/payment.dto';
+import { CancelOrderDto } from './dto/cancel-order.dto';
 
 @Controller()
 export class OrderController extends BaseController {
@@ -53,6 +55,20 @@ export class OrderController extends BaseController {
   @UseGuards(AdminAuthGuard)
   async updateOrderStatus(@Body() body: UpdateOrderStatus) {
     const data = await this.orderService.updateOrderStatus(body);
+    return this.response([]);
+  }
+
+  @Post('/payment')
+  @UseGuards(UserAuthGuard)
+  async payment(@AuthUser() user: UserEntity, @Body() payment: PayMentDto) {
+    const data = await this.orderService.payment(user, payment);
+    return this.response([]);
+  }
+
+  @Post('/cancel-order')
+  @UseGuards(UserAuthGuard)
+  async cancelOrder(@AuthUser() user: UserEntity, @Body() body: CancelOrderDto) {
+    const data = this.orderService.cancelOrder(user, body);
     return this.response([]);
   }
 }

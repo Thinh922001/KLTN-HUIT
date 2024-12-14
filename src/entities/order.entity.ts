@@ -6,6 +6,7 @@ import { InvoiceEntity } from './invoice.entity';
 import { CouponEntity } from './coupon.entity';
 import { OrderStatus, ShippingMethod } from '../types';
 import { OrderStatusHistory } from './order-status-history.entity';
+import { ReturnOrderEntity } from './return-order.entity';
 
 @Entity('order')
 export class OrderEntity extends AbstractEntity {
@@ -40,4 +41,7 @@ export class OrderEntity extends AbstractEntity {
 
   @OneToMany(() => OrderStatusHistory, (statusHistory) => statusHistory.order)
   statusHistory: OrderStatusHistory[];
+
+  @OneToMany(() => ReturnOrderEntity, (return_order) => return_order.order)
+  returnOrder: ReturnOrderEntity[];
 }

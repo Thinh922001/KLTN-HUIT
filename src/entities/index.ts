@@ -24,3 +24,4 @@ export * from './admin.entity';
 export * from './banner.entity';
 export * from './category-banner.entity';
 export * from './category-type.entity';
+export * from './return-order.entity';

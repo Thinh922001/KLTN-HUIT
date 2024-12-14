@@ -5,12 +5,14 @@ import {
   OrderDetailRepository,
   OrderRepository,
   ProductDetailsRepository,
+  ReturnOrderRepository,
 } from '../../repositories';
 import { OrderDto } from './dto/order.dto';
 import {
   CartEntity,
   CartItemEntity,
   CouponEntity,
+  InvoiceEntity,
   OrderDetailEntity,
   OrderEntity,
   OrderStatusHistory,
@@ -23,7 +25,7 @@ import { CartService } from '../cart/cart.service';
 import { BadRequestException } from '../../vendors/exceptions/errors.exception';
 import { ErrorMessage } from '../../common/message';
 import { CouponService } from '../coupon/coupon.service';
-import { OrderStatus, ShippingMethod } from '../../types';
+import { OrderReturnStatus, OrderStatus, ShippingMethod } from '../../types';
 import { GetOrder, OrderUser } from './dto/get-order.dto';
 import { applyPagination, convertHttpToHttps, getTableName } from '../../utils/utils';
 import { GetOrderAd } from './dto/get-order-admin';
@@ -31,6 +33,10 @@ import { UpdateOrderStatus } from './dto/update-order-status.dto';
 import { OrderStatusHistoryRepository } from '../../repositories/order-status-history.repository';
 import { MailService } from '../mail/mail.service';
 import { AdminRepository } from '../../repositories/admin.repository';
+import { PayMentDto } from './dto/payment.dto';
+import { WalletsRepository } from '../../repositories/wallets.repository';
+import { WalletsEntity } from '../../entities/wallets.entity';
+import { CancelOrderDto } from './dto/cancel-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -41,16 +47,20 @@ export class OrderService {
   couponAlias: string;
   orderAlias: string;
   orderDetailAlias: string;
+  walletAlias: string;
+  invoiceAlias: string;
   constructor(
     private readonly cartService: CartService,
     private readonly couponService: CouponService,
     private readonly mailService: MailService,
-    private readonly OrderRepo: OrderRepository,
+    private readonly orderRepo: OrderRepository,
     private readonly productDetailRepo: ProductDetailsRepository,
     private readonly couponRepo: CouponRepository,
     private readonly invoiceRepo: InvoiceRepository,
     private readonly orderHistoryRepo: OrderStatusHistoryRepository,
-    private readonly adminRepo: AdminRepository
+    private readonly adminRepo: AdminRepository,
+    private readonly walletRepo: WalletsRepository,
+    private readonly returnOrderRepo: ReturnOrderRepository
   ) {
     this.productDetailAlias = getTableName(ProductDetailsEntity);
     this.productAlias = getTableName(ProductsEntity);
@@ -59,10 +69,13 @@ export class OrderService {
     this.couponAlias = CouponEntity.name;
     this.orderAlias = getTableName(OrderEntity);
     this.orderDetailAlias = getTableName(OrderDetailEntity);
+    this.walletAlias = WalletsEntity.name;
+    this.invoiceAlias = InvoiceEntity.name;
   }
 
   public async getOrder(user: UserEntity, { filterBy, take = 3, skip }: GetOrder) {
-    const query = this.OrderRepo.createQueryBuilder(this.orderAlias)
+    const query = this.orderRepo
+      .createQueryBuilder(this.orderAlias)
       .withDeleted()
       .leftJoin(`${this.orderAlias}.orderDetails`, this.orderDetailAlias)
       .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
@@ -98,13 +111,13 @@ export class OrderService {
   @Transactional()
   async createOrder(user: UserEntity, { carts, auth, coupon, note, address }: OrderDto) {
     const cartMap = new Map(carts.map((e) => [e.id, e]));
-    const productDetailRepo = this.OrderRepo.manager.getRepository(ProductDetailsEntity);
-    const userRepo = this.OrderRepo.manager.getRepository(UserEntity);
-    const orderDetailRepo = this.OrderRepo.manager.getRepository(OrderDetailEntity);
-    const statusOrderHistoryRepo = this.OrderRepo.manager.getRepository(OrderStatusHistory);
-    const cartRepo = this.OrderRepo.manager.getRepository(CartEntity);
-    const cartItemsRepo = this.OrderRepo.manager.getRepository(CartItemEntity);
-    const couponRepo = this.OrderRepo.manager.getRepository(CouponEntity);
+    const productDetailRepo = this.orderRepo.manager.getRepository(ProductDetailsEntity);
+    const userRepo = this.orderRepo.manager.getRepository(UserEntity);
+    const orderDetailRepo = this.orderRepo.manager.getRepository(OrderDetailEntity);
+    const statusOrderHistoryRepo = this.orderRepo.manager.getRepository(OrderStatusHistory);
+    const cartRepo = this.orderRepo.manager.getRepository(CartEntity);
+    const cartItemsRepo = this.orderRepo.manager.getRepository(CartItemEntity);
+    const couponRepo = this.orderRepo.manager.getRepository(CouponEntity);
 
     let orderCustomer = user;
 
@@ -154,8 +167,8 @@ export class OrderService {
       stock: e.stock - cartMap.get(e.id).quantity,
     }));
 
-    const newOrder = this.OrderRepo.create({
-      status: OrderStatus.PENDING,
+    const newOrder = this.orderRepo.create({
+      status: OrderStatus.Pending,
       total_amount: totalAmount,
       shipping_method: ShippingMethod.STANDARD,
       shipping_address: address,
@@ -163,7 +176,7 @@ export class OrderService {
       customer: orderCustomer,
       coupon: couponData ? { id: couponData.id } : null,
     });
-    const savedOrder = await this.OrderRepo.save(newOrder);
+    const savedOrder = await this.orderRepo.save(newOrder);
 
     const orderDetail = productDetail.map((e) => {
       const cart = cartMap.get(e.id);
@@ -177,7 +190,7 @@ export class OrderService {
     });
 
     const statusOrderHistory = statusOrderHistoryRepo.create({
-      status: OrderStatus.PENDING,
+      status: OrderStatus.Pending,
       order: { id: savedOrder.id },
     });
 
@@ -249,7 +262,8 @@ export class OrderService {
   }
 
   async getOrderAd({ status, take, skip }: GetOrderAd) {
-    const query = this.OrderRepo.createQueryBuilder(this.orderAlias)
+    const query = this.orderRepo
+      .createQueryBuilder(this.orderAlias)
       .leftJoin(`${this.orderAlias}.customer`, this.userAlias)
       .select([
         `${this.orderAlias}.id`,
@@ -273,7 +287,8 @@ export class OrderService {
   }
 
   async getOrderByUserId(userId: number) {
-    return await this.OrderRepo.createQueryBuilder(this.orderAlias)
+    return await this.orderRepo
+      .createQueryBuilder(this.orderAlias)
       .withDeleted()
       .where(`${this.orderAlias}.customer_id =:userId`, { userId })
       .select([
@@ -285,13 +300,32 @@ export class OrderService {
       .getMany();
   }
 
+  async updateOrCreateWallet(userId: number, amount: number) {
+    let wallet = await this.walletRepo.findOne({
+      where: { user: { id: userId } },
+    });
+
+    if (!wallet) {
+      wallet = this.walletRepo.create({
+        user: { id: userId } as UserEntity,
+        balance: amount,
+      });
+    } else {
+      wallet.balance = Number(wallet.balance) + Number(amount);
+    }
+
+    await this.walletRepo.save(wallet);
+  }
+
   @Transactional()
   async updateOrderStatus({ status, orderId }: UpdateOrderStatus) {
-    const order = await this.OrderRepo.createQueryBuilder(this.orderAlias)
+    const order = await this.orderRepo
+      .createQueryBuilder(this.orderAlias)
       .where(`${this.orderAlias}.id =:orderId`, { orderId })
       .leftJoin(`${this.orderAlias}.orderDetails`, this.orderDetailAlias)
       .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
       .leftJoin(`${this.orderAlias}.coupon`, this.couponAlias)
+      .leftJoin(`${this.orderAlias}.invoices`, this.invoiceAlias)
       .leftJoin(`${this.orderAlias}.customer`, this.userAlias)
       .select([
         `${this.orderAlias}.id`,
@@ -302,65 +336,11 @@ export class OrderService {
         `${this.orderDetailAlias}.id`,
         `${this.orderDetailAlias}.quantity`,
         `${this.productDetailAlias}.id`,
+        `${this.invoiceAlias}.id`,
+        `${this.invoiceAlias}.total_amount`,
+        `${this.invoiceAlias}.status`,
       ])
       .getOne();
-
-    if (order.status === OrderStatus.PENDING) {
-      const invalidStatuses = [
-        OrderStatus.DELIVERED,
-        OrderStatus.PENDING,
-        OrderStatus.REFUNDED,
-        OrderStatus.SHIPPED,
-        OrderStatus.RETURNED,
-      ];
-
-      if (invalidStatuses.includes(status)) {
-        throw new BadRequestException(ErrorMessage.ORDER_STATUS_INVALID);
-      }
-    }
-
-    if (order.status === OrderStatus.CONFIRMED) {
-      const invalidStatuses = [
-        OrderStatus.DELIVERED,
-        OrderStatus.PENDING,
-        OrderStatus.REFUNDED,
-        OrderStatus.RETURNED,
-        OrderStatus.CONFIRMED,
-      ];
-
-      if (invalidStatuses.includes(status)) {
-        throw new BadRequestException(ErrorMessage.ORDER_STATUS_INVALID);
-      }
-    }
-
-    if (order.status === OrderStatus.SHIPPED) {
-      const invalidStatuses = [
-        OrderStatus.PENDING,
-        OrderStatus.REFUNDED,
-        OrderStatus.PENDING,
-        OrderStatus.SHIPPED,
-        OrderStatus.CANCELLED,
-      ];
-
-      if (invalidStatuses.includes(status)) {
-        throw new BadRequestException(ErrorMessage.ORDER_STATUS_INVALID);
-      }
-    }
-
-    if (order.status === OrderStatus.DELIVERED) {
-      const invalidStatuses = [
-        OrderStatus.RETURNED,
-        OrderStatus.PENDING,
-        OrderStatus.SHIPPED,
-        OrderStatus.CANCELLED,
-        OrderStatus.DELIVERED,
-        OrderStatus.CONFIRMED,
-      ];
-
-      if (invalidStatuses.includes(status)) {
-        throw new BadRequestException(ErrorMessage.ORDER_STATUS_INVALID);
-      }
-    }
 
     if (!order) {
       throw new BadRequestException(ErrorMessage.ORDER_NOT_FOUND);
@@ -370,16 +350,13 @@ export class OrderService {
       throw new BadRequestException(ErrorMessage.ORDER_STATUS_NOT_CHANGE);
     }
 
-    if (
-      order.status === OrderStatus.CANCELLED ||
-      order.status === OrderStatus.RETURNED ||
-      order.status === OrderStatus.REFUNDED
-    ) {
-      throw new BadRequestException(ErrorMessage.ORDER_STATUS_CANNOT_UPDATE);
+    if (order.status == OrderStatus.Canceled && order.invoices.some((e) => e.status === 'PAID')) {
+      throw new BadRequestException(ErrorMessage.ORDER_STATUS_NOT_CHANGE);
     }
 
     // refund stock, coupon
-    if (status === OrderStatus.CANCELLED || status === OrderStatus.RETURNED || status === OrderStatus.REFUNDED) {
+    // if user paid cannot cancel
+    if (status === OrderStatus.Canceled) {
       if (order.orderDetails?.length) {
         const updateOderDetailStock = order.orderDetails.map((e) =>
           this.productDetailRepo.update(e.sku.id, {
@@ -398,28 +375,234 @@ export class OrderService {
       }
     }
 
-    if (status === OrderStatus.DELIVERED) {
-      await this.invoiceRepo.save(
-        this.invoiceRepo.create({
-          order: { id: orderId },
-          customer: { id: order.customer.id },
-          total_amount: order.total_amount,
-          payment_method: 'CASH',
-          status: 'PAID',
-        })
-      );
+    // create new invoice if not exist
+    if (status === OrderStatus.Completed) {
+      // check not existed
+      if (!order.invoices[0]) {
+        await this.invoiceRepo.save(
+          this.invoiceRepo.create({
+            total_amount: order.total_amount,
+            status: 'Unpaid',
+            payment_method: '',
+            order: { id: order.id },
+            customer: { id: order.customer.id },
+          })
+        );
+      }
     }
 
-    if (status === OrderStatus.REFUNDED) {
-      await this.invoiceRepo.softDelete({ order: { id: orderId } });
+    // refund stock, coupon, balance for user
+    if (status === OrderStatus.Returned) {
+      if (order.invoices.some((e) => e.status === 'PAID')) {
+        await this.updateOrCreateWallet(order.customer.id, order.total_amount);
+        const paidInvoice = order.invoices.find((e) => e.status === 'PAID');
+        await this.invoiceRepo.save(
+          this.invoiceRepo.create({
+            order: { id: orderId },
+            status: 'RETURN',
+            total_amount: order.total_amount,
+            customer: { id: order.customer.id },
+          })
+        );
+        await this.invoiceRepo.update(paidInvoice.id, {
+          total_amount: 0,
+        });
+
+        if (order.orderDetails?.length) {
+          const updateOderDetailStock = order.orderDetails.map((e) =>
+            this.productDetailRepo.update(e.sku.id, {
+              stock: () => `stock + ${e.quantity}`,
+            })
+          );
+
+          if (order.coupon) {
+            const updateCoupon = this.couponRepo.update(order.coupon.id, {
+              times_used: () => `times_used - 1`,
+            });
+            await Promise.all([...updateOderDetailStock, updateCoupon]);
+          } else {
+            await Promise.all(updateOderDetailStock);
+          }
+        }
+        // create return order
+        if (order.orderDetails.length) {
+          const returnsOrder = order.orderDetails.map((e) =>
+            this.returnOrderRepo.create({
+              status: OrderReturnStatus.Resolved,
+              isApprove: true,
+              reason: 'Admin return',
+              quantity: e.quantity,
+              order: { id: order.id },
+              producDetail: { id: e.id },
+              user: { id: order.customer.id },
+            })
+          );
+          await this.returnOrderRepo.save(returnsOrder);
+        }
+      }
     }
 
     const saveOrderHistory = this.orderHistoryRepo.save(
       this.orderHistoryRepo.create({ status: status, order: { id: orderId } })
     );
-    const updateOrder = this.OrderRepo.update(orderId, { status: status });
+    const updateOrder = this.orderRepo.update(orderId, { status: status });
 
     await Promise.all([saveOrderHistory, updateOrder]);
+
+    return [];
+  }
+
+  @Transactional()
+  async payment(user: UserEntity, { orderId, method }: PayMentDto) {
+    const [order, userWallet] = await Promise.all([
+      this.orderRepo
+        .createQueryBuilder(this.orderAlias)
+        .where(`${this.orderAlias}.id =:orderId`, {
+          orderId,
+        })
+        .select([`${this.orderAlias}.id`, `${this.orderAlias}.total_amount`, `${this.orderAlias}.status`])
+        .getOne(),
+      this.walletRepo
+        .createQueryBuilder(this.walletAlias)
+        .where(`${this.walletAlias}.user_id =:userId`, { userId: user.id })
+        .select([`${this.walletAlias}.id`, `${this.walletAlias}.balance`])
+        .getOne(),
+    ]);
+
+    if (!order) {
+      throw new BadRequestException(ErrorMessage.ORDER_NOT_FOUND);
+    }
+
+    if (order.status === OrderStatus.Returned || order.status === OrderStatus.Canceled) {
+      throw new BadRequestException(ErrorMessage.ORDER_STATUS_CANNOT_UPDATE);
+    }
+
+    if (!userWallet) {
+      throw new BadRequestException(ErrorMessage.INSUFFICIENT_BALANCE);
+    }
+
+    if (Number(order.total_amount) > Number(userWallet.balance)) {
+      throw new BadRequestException(ErrorMessage.INSUFFICIENT_BALANCE);
+    }
+
+    await this.updateOrCreateWallet(user.id, Number(userWallet.balance) - Number(order.total_amount));
+
+    const invoice = await this.invoiceRepo
+      .createQueryBuilder(this.invoiceAlias)
+      .where(`${this.invoiceAlias}.order_id =:orderId`)
+      .andWhere(`${this.invoiceAlias}.status = 'Unpaid`)
+      .andWhere(`${this.invoiceAlias}.customer_id =:userId`, {
+        orderId: orderId,
+        userId: user.id,
+      })
+      .select([`${this.invoiceAlias}.id`, `${this.invoiceAlias}.status`, `${this.invoiceAlias}.total_amount`])
+      .getOne();
+
+    if (invoice) {
+      await this.invoiceRepo.update(invoice.id, {
+        status: 'PAID',
+      });
+    } else {
+      await this.invoiceRepo.save(
+        this.invoiceRepo.create({
+          total_amount: order.total_amount,
+          status: 'PAID',
+          payment_method: method,
+          customer: { id: user.id },
+        })
+      );
+    }
+
+    // add invoice
+  }
+
+  @Transactional()
+  async cancelOrder(user: UserEntity, { orderId }: CancelOrderDto) {
+    const order = await this.orderRepo
+      .createQueryBuilder(this.orderAlias)
+      .where(`${this.orderAlias}.id =:orderId`, { orderId })
+      .andWhere(`${this.orderAlias}.customer_id =:userId`, { userId: user.id })
+      .leftJoin(`${this.orderAlias}.orderDetails`, this.orderDetailAlias)
+      .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
+      .leftJoin(`${this.orderAlias}.coupon`, this.couponAlias)
+      .leftJoin(`${this.orderAlias}.invoices`, this.invoiceAlias)
+      .select([
+        `${this.orderAlias}.id`,
+        `${this.orderAlias}.status`,
+        `${this.orderAlias}.total_amount`,
+        `${this.couponAlias}.id`,
+        `${this.orderDetailAlias}.id`,
+        `${this.orderDetailAlias}.quantity`,
+        `${this.productDetailAlias}.id`,
+        `${this.invoiceAlias}.id`,
+        `${this.invoiceAlias}.total_amount`,
+        `${this.invoiceAlias}.status`,
+      ])
+      .getOne();
+
+    if (!order) {
+      throw new BadRequestException(ErrorMessage.ORDER_NOT_FOUND);
+    }
+
+    if (
+      order.status === OrderStatus.Canceled ||
+      order.status === OrderStatus.Completed ||
+      order.status === OrderStatus.Returned
+    ) {
+      throw new BadRequestException(ErrorMessage.ORDER_STATUS_NOT_CHANGE);
+    }
+
+    // refund money if user cancel but paid
+    if (order.invoices.length && order.invoices.some((e) => e.status === 'PAID')) {
+      // tạo một hóa đơn hoàn tiền
+      // trừ hóa đơn gốc về 0
+      const paidInvoice = order.invoices.find((e) => e.status === 'PAID');
+      await Promise.all([
+        this.invoiceRepo.update(paidInvoice.id, {
+          total_amount: 0,
+        }),
+        this.invoiceRepo.save(
+          this.invoiceRepo.create({
+            order: { id: orderId },
+            status: 'RETURN',
+            total_amount: order.total_amount,
+            customer: { id: user.id },
+          })
+        ),
+        this.walletRepo.update(
+          { user: { id: user.id } },
+          {
+            balance: () => `balance + ${order.total_amount}`,
+          }
+        ),
+      ]);
+    }
+
+    // restore coupon stock
+    if (order.orderDetails?.length) {
+      const updateOderDetailStock = order.orderDetails.map((e) =>
+        this.productDetailRepo.update(e.sku.id, {
+          stock: () => `stock + ${e.quantity}`,
+        })
+      );
+
+      if (order.coupon) {
+        const updateCoupon = this.couponRepo.update(order.coupon.id, {
+          times_used: () => `times_used - 1`,
+        });
+        await Promise.all([...updateOderDetailStock, updateCoupon]);
+      } else {
+        await Promise.all(updateOderDetailStock);
+      }
+
+      // update order status, order status history
+      const saveOrderHistory = this.orderHistoryRepo.save(
+        this.orderHistoryRepo.create({ status: OrderStatus.Canceled, order: { id: orderId } })
+      );
+      const updateOrder = this.orderRepo.update(orderId, { status: OrderStatus.Canceled });
+
+      await Promise.all([saveOrderHistory, updateOrder]);
+    }
 
     return [];
   }

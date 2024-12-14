@@ -41,41 +41,11 @@ export enum ShippingMethod {
 }
 
 export enum OrderStatus {
-  /**
-   * Pending: Đơn hàng đang chờ xử lý, chưa được xác nhận.
-   */
-  PENDING = 'Pending',
-
-  /**
-   * Confirmed: Đơn hàng đã được xác nhận bởi hệ thống hoặc nhân viên.
-   */
-  CONFIRMED = 'Confirmed',
-
-  /**
-   * Shipped: Đơn hàng đã được giao cho đơn vị vận chuyển
-   * và đang trên đường đến khách hàng.
-   */
-  SHIPPED = 'Shipped',
-
-  /**
-   * Delivered: Đơn hàng đã được giao thành công đến khách hàng.
-   */
-  DELIVERED = 'Delivered',
-
-  /**
-   * Cancelled: Đơn hàng đã bị hủy bởi khách hàng hoặc hệ thống.
-   */
-  CANCELLED = 'Cancelled',
-
-  /**
-   * Returned: Đơn hàng đã được trả lại sau khi giao cho khách hàng.
-   */
-  RETURNED = 'Returned',
-
-  /**
-   * Refunded: Đơn hàng đã được hoàn tiền cho khách hàng (nếu phù hợp).
-   */
-  REFUNDED = 'Refunded',
+  Pending = 'Pending',
+  Processing = 'Processing',
+  Returned = 'Returned',
+  Canceled = 'Canceled',
+  Completed = 'Completed',
 }
 
 export interface MoMoResponse {
@@ -92,4 +62,10 @@ export interface MoMoResponse {
   responseTime: number;
   extraData: string;
   signature: string;
+}
+
+export enum OrderReturnStatus {
+  Pending = 'Pending',
+  Resolved = 'Resolve',
+  Rejected = 'Rejected',
 }

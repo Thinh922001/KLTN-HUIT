@@ -4,6 +4,7 @@ import { ProductsEntity } from './products.entity';
 import { ProductDetailsImgEntity } from './product-details-img.entity';
 import { OrderDetailEntity } from './order-details.entity';
 import { CartItemEntity } from './cart-items.entity';
+import { ReturnOrderEntity } from './return-order.entity';
 
 @Entity('product_details')
 export class ProductDetailsEntity extends AbstractProduct {
@@ -42,4 +43,7 @@ export class ProductDetailsEntity extends AbstractProduct {
 
   @OneToMany(() => CartItemEntity, (cart_items) => cart_items.sku)
   cartItems: CartItemEntity[];
+
+  @OneToMany(() => ReturnOrderEntity, (return_order) => return_order.producDetail)
+  returnOrder: ReturnOrderEntity[];
 }

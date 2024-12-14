@@ -49,6 +49,10 @@ export enum ErrorMessage {
   Brand_CANNOT_DELETE = 'Brand cannot delete',
   COUPON_CANNOT_DELETE = 'Coupon cannot delete',
   ORDER_STATUS_INVALID = 'Order status invalid',
+  INSUFFICIENT_BALANCE = 'Insufficient balance.',
+  ORDER_RETURN_STATUS_CANNOT_UPDATE = 'Order return status cannot updae',
+  USER_NOT_PAID_INVOICE = 'User Not paid invoice',
+  EXCEED_QUANTITY = 'Exeed quantity',
 }
 
 export function getErrorMessage(error: ErrorMessage, param?: string): string {

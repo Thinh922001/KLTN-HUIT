@@ -9,6 +9,7 @@ export class GetOrderDetail {
 }
 
 export class Item {
+  id: number;
   name: string;
   img: string;
   quantity: number;
@@ -26,6 +27,8 @@ export class GetOrderResponse {
   totalAmount: number;
   finalAmount: number;
   addressRecieve: string;
+  isPaid: boolean;
+  paymentMethod: string;
   items: Item[];
 
   constructor(orderEntity: OrderEntity) {
@@ -49,6 +52,7 @@ export class GetOrderResponse {
           : '';
 
       return {
+        id: e.sku.id,
         name: `${e.sku.product.productName} ${color}`,
         img: e.sku.product.img,
         quantity: e.quantity,
@@ -57,5 +61,12 @@ export class GetOrderResponse {
         oldPrice: e.sku.oldPrice,
       };
     });
+    if (orderEntity.invoices[0]) {
+      this.isPaid = orderEntity.invoices[0].status === 'PAID';
+      this.paymentMethod = orderEntity.invoices[0].payment_method;
+    } else {
+      this.isPaid = false;
+      this.paymentMethod = '';
+    }
   }
 }

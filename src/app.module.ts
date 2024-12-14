@@ -33,6 +33,7 @@ import { BannerModule } from './modules/banner/banner.module';
 import { BannerCateModule } from './modules/banner-cate/banner-cate.module';
 import { CateTypeModule } from './modules/cate-type/cate-type.module';
 import { WalletsModule } from './modules/wallets/wallets.module';
+import { ReturnOrderModule } from './modules/return-order/return-order.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { WalletsModule } from './modules/wallets/wallets.module';
     BannerCateModule,
     CateTypeModule,
     WalletsModule,
+    ReturnOrderModule,
   ],
   controllers: [],
 })

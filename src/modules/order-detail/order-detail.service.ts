@@ -1,6 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { OrderDetailRepository, OrderRepository } from '../../repositories';
-import { OrderDetailEntity, OrderEntity, ProductDetailsEntity, ProductsEntity, UserEntity } from '../../entities';
+import {
+  InvoiceEntity,
+  OrderDetailEntity,
+  OrderEntity,
+  ProductDetailsEntity,
+  ProductsEntity,
+  UserEntity,
+} from '../../entities';
 import { GetOrderDetail, GetOrderResponse } from './dto/get-order-detail.dto';
 import { getTableName } from '../../utils/utils';
 
@@ -11,12 +18,14 @@ export class OrderDetailService {
   productAlias: string;
   orderAlias: string;
   userAlias: string;
+  invoiceAlias: string;
   constructor(private readonly orderRepo: OrderRepository, private readonly orderDetailRepo: OrderDetailRepository) {
     this.orderDetailAlias = getTableName(OrderDetailEntity);
     this.productDetailAlias = getTableName(ProductDetailsEntity);
     this.productAlias = getTableName(ProductsEntity);
     this.orderAlias = getTableName(OrderEntity);
     this.userAlias = getTableName(UserEntity);
+    this.invoiceAlias = getTableName(InvoiceEntity);
   }
 
   async getOrderDetail(user: UserEntity, params: GetOrderDetail) {
@@ -25,6 +34,7 @@ export class OrderDetailService {
       .withDeleted()
       .leftJoin(`${this.orderAlias}.orderDetails`, this.orderDetailAlias)
       .leftJoin(`${this.orderAlias}.customer`, this.userAlias)
+      .leftJoin(`${this.orderAlias}.invoices`, this.invoiceAlias)
       .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
       .leftJoin(`${this.productDetailAlias}.product`, this.productAlias)
       .where(`${this.orderAlias}.id =:orderId`, { orderId: params.orderId })
@@ -35,6 +45,8 @@ export class OrderDetailService {
         `${this.orderAlias}.updatedAt`,
         `${this.orderAlias}.createdAt`,
         `${this.orderAlias}.total_amount`,
+        `${this.invoiceAlias}.id`,
+        `${this.invoiceAlias}.payment_method`,
         `${this.userAlias}.id`,
         `${this.userAlias}.name`,
         `${this.userAlias}.phone`,
@@ -61,6 +73,7 @@ export class OrderDetailService {
       .withDeleted()
       .leftJoin(`${this.orderAlias}.orderDetails`, this.orderDetailAlias)
       .leftJoin(`${this.orderAlias}.customer`, this.userAlias)
+      .leftJoin(`${this.orderAlias}.invoices`, this.invoiceAlias)
       .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
       .leftJoin(`${this.productDetailAlias}.product`, this.productAlias)
       .where(`${this.orderAlias}.id =:orderId`, { orderId })
@@ -70,6 +83,8 @@ export class OrderDetailService {
         `${this.orderAlias}.updatedAt`,
         `${this.orderAlias}.createdAt`,
         `${this.orderAlias}.total_amount`,
+        `${this.invoiceAlias}.id`,
+        `${this.invoiceAlias}.payment_method`,
         `${this.userAlias}.id`,
         `${this.userAlias}.name`,
         `${this.userAlias}.phone`,
@@ -79,6 +94,8 @@ export class OrderDetailService {
         `${this.orderDetailAlias}.total_price`,
         `${this.productDetailAlias}.id`,
         `${this.productDetailAlias}.variationDetails`,
+        `${this.productDetailAlias}.price`,
+        `${this.productDetailAlias}.oldPrice`,
         `${this.productAlias}.id`,
         `${this.productAlias}.productName`,
         `${this.productAlias}.img`,
