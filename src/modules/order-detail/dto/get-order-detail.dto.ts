@@ -13,6 +13,8 @@ export class Item {
   img: string;
   quantity: number;
   totalAmount: number;
+  price: number;
+  oldPrice: number;
 }
 
 export class GetOrderResponse {
@@ -51,6 +53,8 @@ export class GetOrderResponse {
         img: e.sku.product.img,
         quantity: e.quantity,
         totalAmount: e.total_price,
+        price: e.sku.price,
+        oldPrice: e.sku.oldPrice,
       };
     });
   }
