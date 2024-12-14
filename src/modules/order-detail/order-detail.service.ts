@@ -44,6 +44,8 @@ export class OrderDetailService {
         `${this.orderDetailAlias}.total_price`,
         `${this.productDetailAlias}.id`,
         `${this.productDetailAlias}.variationDetails`,
+        `${this.productDetailAlias}.price`,
+        `${this.productDetailAlias}.oldPrice`,
         `${this.productAlias}.id`,
         `${this.productAlias}.productName`,
         `${this.productAlias}.img`,
