@@ -509,6 +509,7 @@ export class OrderService {
           status: 'PAID',
           payment_method: method,
           customer: { id: user.id },
+          order: { id: orderId },
         })
       );
     }
