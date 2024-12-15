@@ -108,6 +108,36 @@ export class OrderService {
     };
   }
 
+  public async getAllOrder({ filterBy, take, skip }: GetOrder) {
+    const query = this.orderRepo
+      .createQueryBuilder(this.orderAlias)
+      .withDeleted()
+      .leftJoin(`${this.orderAlias}.customer`, this.userAlias)
+      .orderBy(`${this.orderAlias}.createdAt`, 'DESC')
+      .select([
+        `${this.orderAlias}.id`,
+        `${this.orderAlias}.status`,
+        `${this.orderAlias}.total_amount`,
+        `${this.orderAlias}.shipping_address`,
+        `${this.orderAlias}.createdAt`,
+        `${this.orderAlias}.note`,
+        `${this.userAlias}.id`,
+        `${this.userAlias}.phone`,
+      ]);
+
+    if (filterBy) {
+      query.andWhere(`${this.orderAlias}.status =:status`, { status: filterBy });
+    }
+
+    const { data, paging } = await applyPagination<OrderEntity>(query, take, skip);
+
+    const result: OrderUser[] = data.map((e) => new OrderUser(e));
+    return {
+      data: result,
+      paging,
+    };
+  }
+
   @Transactional()
   async createOrder(user: UserEntity, { carts, auth, coupon, note, address }: OrderDto) {
     const cartMap = new Map(carts.map((e) => [e.id, e]));

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { BaseController } from '../../vendors/base/base-controller';
 import { ReturnOrderDto } from './dto/return-order.do';
 import { ReturnOrderService } from './return-order.service';
@@ -8,11 +8,20 @@ import { UserEntity } from '../../entities';
 import { ApiKeyGuard } from '../../vendors/guards/Api-key/api-key.guard';
 import { AdminAuthGuard } from '../../vendors/guards/admin/jwt-admin.guard';
 import { ChangeStatusReturnOrder } from './dto/change-status.dto';
+import { GetReturnOrder } from './dto/get-return-order.dto';
 
 @Controller('return-order')
 export class ReturnOrderController extends BaseController {
   constructor(private readonly returnOrderService: ReturnOrderService) {
     super();
+  }
+
+  @Get('/admin')
+  @UseGuards(ApiKeyGuard)
+  @UseGuards(AdminAuthGuard)
+  async getReturnOrder(@Body() body: GetReturnOrder) {
+    const data = await this.returnOrderService.getReturnOrder(body);
+    return this.response(data);
   }
 
   @Post()

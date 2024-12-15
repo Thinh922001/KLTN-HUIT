@@ -11,6 +11,7 @@ import {
   OrderDetailEntity,
   OrderEntity,
   ProductDetailsEntity,
+  ProductsEntity,
   ReturnOrderEntity,
   UserEntity,
 } from '../../entities';
@@ -21,6 +22,9 @@ import { ErrorMessage } from '../../common/message';
 import { OrderReturnStatus, OrderStatus } from '../../types';
 import { ChangeStatusReturnOrder } from './dto/change-status.dto';
 import { WalletsRepository } from '../../repositories/wallets.repository';
+import { GetReturnOrder } from './dto/get-return-order.dto';
+import { applyPagination } from '../../utils/utils';
+import { ReturnOrderResponse } from './dto/get-return-order-res.dto';
 
 @Injectable()
 export class ReturnOrderService {
@@ -31,6 +35,7 @@ export class ReturnOrderService {
   userAlias: string;
   productdetailReturn: string;
   invoiceAlias: string;
+  productAlias: string;
   constructor(
     private readonly returnOrderRepo: ReturnOrderRepository,
     private readonly orderRepo: OrderRepository,
@@ -46,6 +51,7 @@ export class ReturnOrderService {
     this.userAlias = UserEntity.name;
     this.productdetailReturn = `${OrderDetailEntity.name}Return`;
     this.invoiceAlias = InvoiceEntity.name;
+    this.productAlias = ProductsEntity.name;
   }
 
   @Transactional()
@@ -197,5 +203,45 @@ export class ReturnOrderService {
         total_amount: () => `total_amount - ${amount}`,
       });
     }
+  }
+
+  async getReturnOrder({ status, take = 50, skip }: GetReturnOrder) {
+    const query = this.returnOrderRepo
+      .createQueryBuilder(this.returnOrderAlias)
+      .withDeleted()
+      .leftJoin(`${this.returnOrderAlias}.user`, `${this.userAlias}`)
+      .leftJoin(`${this.returnOrderAlias}.producDetail`, this.productdetailReturn)
+      .leftJoin(`${this.productdetailReturn}.product`, this.productAlias)
+      .leftJoin(`${this.returnOrderAlias}.order`, this.orderAlias)
+      .leftJoin(`${this.orderAlias}.orderDetails`, this.orderDetailAlias)
+      .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
+      .select([
+        `${this.returnOrderAlias}.id`,
+        `${this.returnOrderAlias}.status`,
+        `${this.returnOrderAlias}.isApprove`,
+        `${this.returnOrderAlias}.reason`,
+        `${this.returnOrderAlias}.quantity`,
+        `${this.productdetailReturn}.id`,
+        `${this.productAlias}.id`,
+        `${this.productAlias}.productName`,
+        `${this.userAlias}.id`,
+        `${this.userAlias}.phone`,
+        `${this.orderAlias}.id`,
+        `${this.orderDetailAlias}.id`,
+        `${this.orderDetailAlias}.unit_price`,
+        `${this.productDetailAlias}.id`,
+      ]);
+
+    if (status) {
+      query.where(`${this.returnOrderAlias}.status =:status`, { status });
+    }
+
+    const { data, paging } = await applyPagination<ReturnOrderEntity>(query, take, skip);
+
+    const result: ReturnOrderResponse[] = data.map((e) => new ReturnOrderResponse(e));
+    return {
+      data: result,
+      paging,
+    };
   }
 }

@@ -71,4 +71,12 @@ export class OrderController extends BaseController {
     const data = await this.orderService.cancelOrder(user, body);
     return this.response([]);
   }
+
+  @Post('/admin/order/all')
+  @UseGuards(ApiKeyGuard)
+  @UseGuards(AdminAuthGuard)
+  async getAllOrder(@Body() body: GetOrder) {
+    const data = await this.orderService.getAllOrder(body);
+    return this.response(data);
+  }
 }
