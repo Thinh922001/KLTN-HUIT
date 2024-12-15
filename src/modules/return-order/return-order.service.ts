@@ -134,6 +134,9 @@ export class ReturnOrderService {
         `${this.userAlias}.id`,
         `${this.productdetailReturn}.id`,
         `${this.productDetailAlias}.id`,
+        `${this.invoiceAlias}.id`,
+        `${this.invoiceAlias}.status`,
+        `${this.invoiceAlias}.total_amount`,
       ])
       .getOne();
 
@@ -161,7 +164,7 @@ export class ReturnOrderService {
       // update amount invoice
       const invoiceUpdate = returnOrder.order.invoices.find((e) => e.status === 'PAID');
       await this.invoiceRepo.update(invoiceUpdate.id, {
-        total_amount: () => `total_amont - ${amount}`,
+        total_amount: () => `total_amount - ${amount}`,
       });
       await this.invoiceRepo.save(
         this.invoiceRepo.create({
@@ -191,7 +194,7 @@ export class ReturnOrderService {
       }
 
       await this.orderRepo.update(returnOrder.order.id, {
-        total_amount: () => `total_amont - ${amount}`,
+        total_amount: () => `total_amount - ${amount}`,
       });
     }
   }

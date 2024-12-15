@@ -26,7 +26,7 @@ export class ReturnOrderController extends BaseController {
   @UseGuards(ApiKeyGuard)
   @UseGuards(AdminAuthGuard)
   async changeStatusReturnOrder(@Body() body: ChangeStatusReturnOrder) {
-    const data = this.returnOrderService.changeStatusOrderReturn(body);
+    const data = await this.returnOrderService.changeStatusOrderReturn(body);
     return this.response([]);
   }
 }
