@@ -175,6 +175,7 @@ export class ReturnOrderService {
 
       await this.returnOrderRepo.update(id, {
         isApprove: true,
+        status: status,
       });
 
       // update orderDetail
