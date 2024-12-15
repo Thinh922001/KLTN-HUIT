@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   InvoiceRepository,
+  OrderDetailRepository,
   OrderRepository,
   ProductDetailsRepository,
   ReturnOrderRepository,
@@ -35,7 +36,8 @@ export class ReturnOrderService {
     private readonly orderRepo: OrderRepository,
     private readonly productDetailRepo: ProductDetailsRepository,
     private readonly walleRepo: WalletsRepository,
-    private readonly invoiceRepo: InvoiceRepository
+    private readonly invoiceRepo: InvoiceRepository,
+    private readonly orderDetailRepo: OrderDetailRepository
   ) {
     this.orderAlias = OrderEntity.name;
     this.returnOrderAlias = ReturnOrderEntity.name;
@@ -148,8 +150,8 @@ export class ReturnOrderService {
 
     if (status === OrderReturnStatus.Resolved) {
       // refund wallet
-      const productDetail = returnOrder.order.orderDetails.find((e) => e.sku.id === returnOrder.producDetail.id);
-      const amount = Number(productDetail.unit_price) * Number(returnOrder.quantity);
+      const orderDetail = returnOrder.order.orderDetails.find((e) => e.sku.id === returnOrder.producDetail.id);
+      const amount = Number(orderDetail.unit_price) * Number(returnOrder.quantity);
       this.walleRepo.update(
         { user: { id: returnOrder.user.id } },
         {
@@ -173,6 +175,22 @@ export class ReturnOrderService {
 
       await this.returnOrderRepo.update(id, {
         isApprove: true,
+      });
+
+      // update orderDetail
+      if (orderDetail.quantity <= returnOrder.quantity) {
+        //delete orderDetail
+        await this.orderDetailRepo.delete(orderDetail.id);
+      } else {
+        // update quantity order detail
+        await this.orderDetailRepo.update(orderDetail.id, {
+          quantity: orderDetail.quantity - returnOrder.quantity,
+          total_price: amount,
+        });
+      }
+
+      await this.orderRepo.update(returnOrder.order.id, {
+        total_amount: () => `total_amont - ${amount}`,
       });
     }
   }

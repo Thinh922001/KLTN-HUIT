@@ -3,6 +3,7 @@ import { ReturnOrderService } from './return-order.service';
 import { ReturnOrderController } from './return-order.controller';
 import {
   InvoiceRepository,
+  OrderDetailRepository,
   OrderRepository,
   ProductDetailsRepository,
   ReturnOrderRepository,
@@ -17,6 +18,7 @@ import { WalletsRepository } from '../../repositories/wallets.repository';
     ProductDetailsRepository,
     WalletsRepository,
     InvoiceRepository,
+    OrderDetailRepository,
   ],
   controllers: [ReturnOrderController],
 })
