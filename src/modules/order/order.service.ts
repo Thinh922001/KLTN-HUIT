@@ -490,7 +490,7 @@ export class OrderService {
     const invoice = await this.invoiceRepo
       .createQueryBuilder(this.invoiceAlias)
       .where(`${this.invoiceAlias}.order_id =:orderId`)
-      .andWhere(`${this.invoiceAlias}.status =:status '`, { status: 'Unpaid' })
+      .andWhere(`${this.invoiceAlias}.status =:status`, { status: 'Unpaid' })
       .andWhere(`${this.invoiceAlias}.customer_id =:userId`, {
         orderId: orderId,
         userId: user.id,
