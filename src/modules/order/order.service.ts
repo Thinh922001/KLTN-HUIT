@@ -81,6 +81,7 @@ export class OrderService {
       .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
       .leftJoin(`${this.productDetailAlias}.product`, this.productAlias)
       .where(`${this.orderAlias}.customer_id = :userId`, { userId: user.id })
+      .andWhere(`${this.orderDetailAlias}.id IS NOT NULL`)
       .orderBy(`${this.orderAlias}.createdAt`, 'DESC')
       .select([
         `${this.orderAlias}.id`,
