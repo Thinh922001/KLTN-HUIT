@@ -5,7 +5,6 @@ import { OrderEntity } from '../../../entities';
 
 export class GetOrder extends PagerDto {
   @IsOptional()
-  @IsEnum(OrderStatus)
   filterBy: OrderStatus;
 }
 
