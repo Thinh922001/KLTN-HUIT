@@ -30,6 +30,7 @@ export class GetOrderResponse {
   addressRecieve: string;
   isPaid: boolean;
   paymentMethod: string;
+  paidAmount: number;
   items: Item[];
 
   constructor(orderEntity: OrderEntity) {
@@ -67,9 +68,11 @@ export class GetOrderResponse {
       const invoice = orderEntity.invoices.find((e) => e.status === 'PAID');
       this.isPaid = Boolean(invoice);
       this.paymentMethod = invoice?.payment_method || null;
+      this.paidAmount = Number(invoice.total_amount);
     } else {
       this.isPaid = false;
       this.paymentMethod = '';
+      this.paidAmount = 0;
     }
   }
 }

@@ -311,7 +311,7 @@ export class OrderService {
         balance: amount,
       });
     } else {
-      wallet.balance = Number(wallet.balance) + Number(amount);
+      wallet.balance = amount;
     }
 
     await this.walletRepo.save(wallet);
