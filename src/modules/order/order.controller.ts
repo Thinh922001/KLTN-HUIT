@@ -72,7 +72,7 @@ export class OrderController extends BaseController {
     return this.response([]);
   }
 
-  @Post('/admin/order/all')
+  @Get('/admin/order/all')
   @UseGuards(ApiKeyGuard)
   @UseGuards(AdminAuthGuard)
   async getAllOrder(@Body() body: GetOrder) {
