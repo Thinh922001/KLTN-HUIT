@@ -132,6 +132,8 @@ export class OrderService {
         });
         orderCustomer = await userRepo.save(userEntity);
       }
+    } else {
+      orderCustomer = await userRepo.findOne({ where: { phone: auth.phone }, select: ['id', 'name', 'phone'] });
     }
 
     const productDetail = await productDetailRepo
