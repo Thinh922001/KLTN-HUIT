@@ -73,9 +73,9 @@ export class OrderController extends BaseController {
   }
 
   @Get('/admin/order/all')
-  @UseGuards(ApiKeyGuard)
-  @UseGuards(AdminAuthGuard)
-  async getAllOrder(@Body() body: GetOrder) {
+  // @UseGuards(ApiKeyGuard)
+  // @UseGuards(AdminAuthGuard)
+  async getAllOrder(@Query() body: GetOrder) {
     const data = await this.orderService.getAllOrder(body);
     return this.response(data);
   }

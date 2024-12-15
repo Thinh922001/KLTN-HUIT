@@ -126,6 +126,7 @@ export class OrderService {
       ]);
 
     if (filterBy) {
+      console.log('Vo');
       query.andWhere(`${this.orderAlias}.status =:status`, { status: filterBy });
     }
 
