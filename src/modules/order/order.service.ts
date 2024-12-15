@@ -131,9 +131,8 @@ export class OrderService {
 
     const { data, paging } = await applyPagination<OrderEntity>(query, take, skip);
 
-    const result: OrderUser[] = data.map((e) => new OrderUser(e));
     return {
-      data: result,
+      data: data,
       paging,
     };
   }
