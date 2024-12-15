@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { BaseController } from '../../vendors/base/base-controller';
 import { ReturnOrderDto } from './dto/return-order.do';
 import { ReturnOrderService } from './return-order.service';
@@ -19,7 +19,7 @@ export class ReturnOrderController extends BaseController {
   @Get('/admin')
   @UseGuards(ApiKeyGuard)
   @UseGuards(AdminAuthGuard)
-  async getReturnOrder(@Body() body: GetReturnOrder) {
+  async getReturnOrder(@Query() body: GetReturnOrder) {
     const data = await this.returnOrderService.getReturnOrder(body);
     return this.response(data);
   }
