@@ -4,6 +4,5 @@ import { PagerDto } from '../../../vendors/dto/pager.dto';
 
 export class GetReturnOrder extends PagerDto {
   @IsOptional()
-  @IsEnum(OrderReturnStatus)
   status: OrderReturnStatus;
 }
