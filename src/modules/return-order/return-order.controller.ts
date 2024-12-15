@@ -22,7 +22,7 @@ export class ReturnOrderController extends BaseController {
     return this.response([]);
   }
 
-  @Post()
+  @Post('/admin')
   @UseGuards(ApiKeyGuard)
   @UseGuards(AdminAuthGuard)
   async changeStatusReturnOrder(@Body() body: ChangeStatusReturnOrder) {
