@@ -63,7 +63,7 @@ export class GetOrderResponse {
         oldPrice: e.sku.oldPrice,
       };
     });
-    if (orderEntity.invoices[0]) {
+    if (orderEntity.invoices.length) {
       const invoice = orderEntity.invoices.find((e) => e.status === 'PAID');
       this.isPaid = Boolean(invoice);
       this.paymentMethod = invoice?.payment_method || null;
