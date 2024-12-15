@@ -68,7 +68,7 @@ export class OrderController extends BaseController {
   @Post('/cancel-order')
   @UseGuards(UserAuthGuard)
   async cancelOrder(@AuthUser() user: UserEntity, @Body() body: CancelOrderDto) {
-    const data = this.orderService.cancelOrder(user, body);
+    const data = await this.orderService.cancelOrder(user, body);
     return this.response([]);
   }
 }
