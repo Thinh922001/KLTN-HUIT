@@ -15,6 +15,7 @@ export class OrderUser {
   name: string;
   images: string[];
   totalItems: number;
+  isPaid: boolean;
 
   constructor(orderEntity: OrderEntity) {
     this.id = orderEntity.id;
@@ -30,5 +31,6 @@ export class OrderUser {
     this.name = orderEntity.orderDetails[0].sku.product.productName + (color ? ' ' + color : '');
 
     this.totalItems = orderEntity.orderDetails.length;
+    this.isPaid = orderEntity.invoices.some((e) => e.status === 'PAID');
   }
 }

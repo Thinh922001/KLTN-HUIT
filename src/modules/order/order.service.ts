@@ -78,6 +78,7 @@ export class OrderService {
       .createQueryBuilder(this.orderAlias)
       .withDeleted()
       .leftJoin(`${this.orderAlias}.orderDetails`, this.orderDetailAlias)
+      .leftJoin(`${this.orderAlias}.invoices`, this.invoiceAlias)
       .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
       .leftJoin(`${this.productDetailAlias}.product`, this.productAlias)
       .where(`${this.orderAlias}.customer_id = :userId`, { userId: user.id })
@@ -94,6 +95,8 @@ export class OrderService {
         `${this.productAlias}.id`,
         `${this.productAlias}.img`,
         `${this.productAlias}.productName`,
+        `${this.invoiceAlias}.id`,
+        `${this.invoiceAlias}.status`,
       ]);
 
     if (filterBy) {
