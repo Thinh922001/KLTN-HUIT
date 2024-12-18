@@ -117,6 +117,7 @@ export class StatisticService {
   public async getRevenue({ mode, year, month, day, week, quarter }: Stats) {
     const query = this.invoiceRepo
       .createQueryBuilder(this.entityAlias)
+      .where(`${this.entityAlias}.status = :status`, { status: 'PAID' })
       .select([`SUM(${this.entityAlias}.total_amount) as revenue`]);
 
     if (mode === 'TODAY') {
@@ -153,8 +154,6 @@ export class StatisticService {
       query.andWhere(`YEAR(${this.entityAlias}.created_at) = :year`, { year });
       query.andWhere(`QUARTER(${this.entityAlias}.created_at) = :quarter`, { quarter });
     }
-
-    console.log(query.getQuery());
 
     const data = await query.getRawOne();
 
