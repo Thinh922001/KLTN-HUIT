@@ -127,7 +127,6 @@ export class OrderService {
       ]);
 
     if (filterBy) {
-      console.log('Vo');
       query.andWhere(`${this.orderAlias}.status =:status`, { status: filterBy });
     }
 
@@ -269,26 +268,26 @@ export class OrderService {
         return cartItem ? acc + +item.price * cartItem.quantity : acc;
       }, 0);
 
-      await this.mailService.sendOrderEmail({
-        adminEmails: emailList,
-        userName: orderCustomer.name,
-        phone: orderCustomer.phone,
-        totalPrice,
-        discountCode: coupon,
-        discountAmount: Number(totalPrice) - (couponData ? Number(couponData.totalAmount) : 0),
-        finalTotal: totalAmount,
-        orderId: `#${savedOrder.id}`,
-        products: productDetail.map((e) => {
-          return {
-            image: convertHttpToHttps(e.product.img),
-            name:
-              e.product.productName +
-              (e.variationDetails && e.variationDetails['color'] ? ` ${String(e.variationDetails['color'])}` : ''),
-            price: Number(e.price),
-            quantity: cartMap.get(e.id).quantity,
-          };
-        }),
-      });
+      // await this.mailService.sendOrderEmail({
+      //   adminEmails: emailList,
+      //   userName: orderCustomer.name,
+      //   phone: orderCustomer.phone,
+      //   totalPrice,
+      //   discountCode: coupon,
+      //   discountAmount: Number(totalPrice) - (couponData ? Number(couponData.totalAmount) : 0),
+      //   finalTotal: totalAmount,
+      //   orderId: `#${savedOrder.id}`,
+      //   products: productDetail.map((e) => {
+      //     return {
+      //       image: convertHttpToHttps(e.product.img),
+      //       name:
+      //         e.product.productName +
+      //         (e.variationDetails && e.variationDetails['color'] ? ` ${String(e.variationDetails['color'])}` : ''),
+      //       price: Number(e.price),
+      //       quantity: cartMap.get(e.id).quantity,
+      //     };
+      //   }),
+      // });
     }
 
     return savedOrder;
