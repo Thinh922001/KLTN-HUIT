@@ -17,7 +17,11 @@ export class ReturnOrderResponse {
     this.reason = entity.reason;
     this.quantity = entity.quantity;
     const unitPriceProduct = entity.order.orderDetails.find((e) => e.sku.id === entity.producDetail.id);
-    this.returnPrice = Number(unitPriceProduct.unit_price) * this.quantity;
+    if (unitPriceProduct) {
+      this.returnPrice = Number(unitPriceProduct.unit_price) * this.quantity;
+    } else {
+      this.returnPrice = Number(entity.producDetail.price) * this.quantity;
+    }
     this.phone = entity.user.phone;
     this.productName = entity.producDetail.product.productName;
   }

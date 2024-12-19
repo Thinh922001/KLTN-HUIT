@@ -222,6 +222,7 @@ export class ReturnOrderService {
         `${this.returnOrderAlias}.reason`,
         `${this.returnOrderAlias}.quantity`,
         `${this.productdetailReturn}.id`,
+        `${this.productdetailReturn}.price`,
         `${this.productAlias}.id`,
         `${this.productAlias}.productName`,
         `${this.userAlias}.id`,
