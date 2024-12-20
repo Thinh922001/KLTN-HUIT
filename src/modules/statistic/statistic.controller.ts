@@ -4,6 +4,7 @@ import { StatisticService } from './statistic.service';
 import { GetLowSelling, Stats } from './dto/invoice-statistic.dto';
 import { ApiKeyGuard } from '../../vendors/guards/Api-key/api-key.guard';
 import { AdminAuthGuard } from '../../vendors/guards/admin/jwt-admin.guard';
+import { GetRevenue } from './dto/get-revenue.dto';
 
 @Controller('stats')
 export class StatisticController extends BaseController {
@@ -32,6 +33,14 @@ export class StatisticController extends BaseController {
   @UseGuards(AdminAuthGuard)
   async getRevenue(@Query() params: Stats) {
     const data = await this.statsService.getRevenue(params);
+    return this.response(data);
+  }
+
+  @Get('v2/revenue')
+  @UseGuards(ApiKeyGuard)
+  @UseGuards(AdminAuthGuard)
+  async getRevenueV2(@Query() query: GetRevenue) {
+    const data = await this.statsService.getRevenueV2(query);
     return this.response(data);
   }
 }

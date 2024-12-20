@@ -3,6 +3,7 @@ import { getGroupByStats } from '../../utils/utils';
 import { InvoiceEntity, OrderDetailEntity, OrderEntity, ProductDetailsEntity, ProductsEntity } from '../../entities';
 import { InvoiceRepository } from '../../repositories';
 import { GetLowSelling, Stats } from './dto/invoice-statistic.dto';
+import { GetRevenue } from './dto/get-revenue.dto';
 
 @Injectable()
 export class StatisticService {
@@ -160,5 +161,102 @@ export class StatisticService {
     return {
       revenue: +data.revenue,
     };
+  }
+
+  private generateDateList(start, end) {
+    const dates = [];
+    let currentDate = new Date(start);
+    while (currentDate <= new Date(end)) {
+      dates.push(currentDate.toISOString().split('T')[0]);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
+  }
+
+  private mergeRevenueData(dates, revenues, key = 'date') {
+    return dates.map((date) => {
+      const revenue = revenues.find((r) => r[key] === date);
+      return {
+        date,
+        totalRevenue: revenue ? +revenue.totalRevenue : 0,
+      };
+    });
+  }
+
+  public async getRevenueV2({ mode, year, month }: GetRevenue) {
+    if (mode === 'day') {
+      const result = await this.invoiceRepo
+        .createQueryBuilder('invoice')
+        .select("DATE_FORMAT(invoice.created_at, '%Y-%m-%d')", 'date')
+        .addSelect('IFNULL(SUM(invoice.total_amount), 0)', 'totalRevenue')
+        .where('YEAR(invoice.created_at) = :year AND MONTH(invoice.created_at) = :month AND invoice.status = :status', {
+          year,
+          month,
+          status: 'PAID',
+        })
+        .groupBy("DATE_FORMAT(invoice.created_at, '%Y-%m-%d')")
+        .orderBy("DATE_FORMAT(invoice.created_at, '%Y-%m-%d')", 'ASC')
+        .getRawMany();
+
+      const dates = this.generateDateList(
+        `${year}-${month.toString().padStart(2, '0')}-01`,
+        `${year}-${month.toString().padStart(2, '0')}-31`
+      );
+      return this.mergeRevenueData(dates, result);
+    }
+
+    if (mode === 'month') {
+      const result = await this.invoiceRepo
+        .createQueryBuilder('invoice')
+        .select('YEAR(invoice.created_at)', 'year')
+        .addSelect('MONTH(invoice.created_at)', 'month')
+        .addSelect('IFNULL(SUM(invoice.total_amount), 0)', 'totalRevenue')
+        .where('YEAR(invoice.created_at) = :year', { year })
+        .groupBy('YEAR(invoice.created_at), MONTH(invoice.created_at)')
+        .orderBy('YEAR(invoice.created_at), MONTH(invoice.created_at)', 'ASC')
+        .getRawMany();
+
+      const months = Array.from({ length: 12 }, (_, i) => ({
+        year,
+        month: i + 1,
+      }));
+
+      return months.map(({ year, month }) => {
+        const revenue = result.find((r) => r.year === year && r.month === month);
+        return {
+          year,
+          month,
+          totalRevenue: revenue ? +revenue.totalRevenue : 0,
+        };
+      });
+    }
+
+    if (mode === 'quarter') {
+      const result = await this.invoiceRepo
+        .createQueryBuilder('invoice')
+        .select('YEAR(invoice.created_at)', 'year')
+        .addSelect('QUARTER(invoice.created_at)', 'quarter')
+        .addSelect('IFNULL(SUM(invoice.total_amount), 0)', 'totalRevenue')
+        .where('YEAR(invoice.created_at) = :year', { year })
+        .groupBy('YEAR(invoice.created_at), QUARTER(invoice.created_at)')
+        .orderBy('YEAR(invoice.created_at), QUARTER(invoice.created_at)', 'ASC')
+        .getRawMany();
+
+      const quarters = Array.from({ length: 4 }, (_, i) => ({
+        year,
+        quarter: i + 1,
+      }));
+
+      return quarters.map(({ year, quarter }) => {
+        const revenue = result.find((r) => r.year === year && r.quarter === quarter);
+        return {
+          year,
+          quarter,
+          totalRevenue: revenue ? +revenue.totalRevenue : 0,
+        };
+      });
+    }
+
+    return [];
   }
 }
