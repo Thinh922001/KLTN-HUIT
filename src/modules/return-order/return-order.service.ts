@@ -118,7 +118,7 @@ export class ReturnOrderService {
     const returnOrder = await this.returnOrderRepo.save(
       this.returnOrderRepo.create({
         order: { id: orderId },
-        user: { id: 1 },
+        user: { id: user.id },
         producDetail: { id: productDetailId },
         isApprove: false,
         quantity,
