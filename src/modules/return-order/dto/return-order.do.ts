@@ -1,15 +1,15 @@
-import { IsInt, IsNotEmpty, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsNumberString, IsString } from 'class-validator';
 
 export class ReturnOrderDto {
-  @IsInt()
+  @IsNumberString()
   @IsNotEmpty()
   orderId: number;
 
-  @IsInt()
+  @IsNumberString()
   @IsNotEmpty()
   productDetailId: number;
 
-  @IsInt()
+  @IsNumberString()
   @IsNotEmpty()
   quantity: number;
 
