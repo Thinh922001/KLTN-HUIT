@@ -94,7 +94,7 @@ export class ReturnOrderService {
       throw new BadRequestException(ErrorMessage.ORDER_NOT_FOUND);
     }
 
-    if (order.invoices.some((e) => e.status !== 'PAID')) {
+    if (order.invoices.every((e) => e.status !== 'PAID')) {
       throw new BadRequestException(ErrorMessage.USER_NOT_PAID_INVOICE);
     }
 
@@ -106,7 +106,11 @@ export class ReturnOrderService {
       throw new BadRequestException(ErrorMessage.PRODUCT_NOT_FOUND);
     }
 
-    const orderDetailFind = order.orderDetails.find((e) => e.sku.id === productDetailId);
+    const orderDetailFind = order.orderDetails.find((e) => e.sku.id == productDetailId);
+
+    if (!orderDetailFind) {
+      throw new BadRequestException(ErrorMessage.ORDER_NOT_FOUND);
+    }
 
     if (quantity > orderDetailFind.quantity) {
       throw new BadRequestException(ErrorMessage.EXCEED_QUANTITY);
@@ -114,7 +118,7 @@ export class ReturnOrderService {
     const returnOrder = await this.returnOrderRepo.save(
       this.returnOrderRepo.create({
         order: { id: orderId },
-        user: { id: user.id },
+        user: { id: 1 },
         producDetail: { id: productDetailId },
         isApprove: false,
         quantity,

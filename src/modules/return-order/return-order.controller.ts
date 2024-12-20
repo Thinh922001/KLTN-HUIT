@@ -26,7 +26,7 @@ export class ReturnOrderController extends BaseController {
   }
 
   @Post()
-  @UseGuards(UserAuthGuard)
+  // @UseGuards(UserAuthGuard)
   @UseInterceptors(FilesInterceptor('img'))
   async returnOrder(
     @AuthUser() user: UserEntity,
