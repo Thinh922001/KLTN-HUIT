@@ -23,3 +23,4 @@ export * from './banner.repository';
 export * from './cate-banner.repository';
 export * from './cate-type.repository';
 export * from './return-order.repository';
+export * from './return-order-img.repository';

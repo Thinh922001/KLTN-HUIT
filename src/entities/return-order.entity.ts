@@ -1,7 +1,8 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { OrderEntity, ProductDetailsEntity, UserEntity } from '.';
 import { AbstractEntity } from '../vendors/base/abtract.entity';
 import { OrderReturnStatus } from '../types';
+import { ReturnOrderImgEntity } from './return-order-img.entity';
 
 @Entity('return_order')
 export class ReturnOrderEntity extends AbstractEntity {
@@ -36,4 +37,7 @@ export class ReturnOrderEntity extends AbstractEntity {
   @ManyToOne(() => UserEntity, (user) => user.returnOrders, { eager: true, nullable: false })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: UserEntity;
+
+  @OneToMany(() => ReturnOrderImgEntity, (return_order_img) => return_order_img.returnOrder)
+  returnOrderImg: ReturnOrderImgEntity[];
 }

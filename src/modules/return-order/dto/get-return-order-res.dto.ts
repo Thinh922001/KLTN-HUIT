@@ -1,4 +1,5 @@
-import { ReturnOrderEntity } from 'src/entities';
+import { ReturnOrderEntity } from '../../../entities';
+import { convertHttpToHttps } from '../../../utils/utils';
 
 export class ReturnOrderResponse {
   id: number;
@@ -9,6 +10,7 @@ export class ReturnOrderResponse {
   returnPrice: number;
   phone: string;
   productName: string;
+  img: string[];
 
   constructor(entity: ReturnOrderEntity) {
     this.id = entity.id;
@@ -21,6 +23,11 @@ export class ReturnOrderResponse {
       this.returnPrice = Number(unitPriceProduct.unit_price) * this.quantity;
     } else {
       this.returnPrice = Number(entity.producDetail.price) * this.quantity;
+    }
+    if (entity.returnOrderImg.length > 0) {
+      this.img = entity.returnOrderImg.map((e) => convertHttpToHttps(e.img));
+    } else {
+      this.img = [];
     }
     this.phone = entity.user.phone;
     this.productName = entity.producDetail.product.productName;

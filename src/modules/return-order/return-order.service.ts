@@ -4,6 +4,7 @@ import {
   OrderDetailRepository,
   OrderRepository,
   ProductDetailsRepository,
+  ReturnOrderImgRepository,
   ReturnOrderRepository,
 } from '../../repositories';
 import {
@@ -13,6 +14,7 @@ import {
   ProductDetailsEntity,
   ProductsEntity,
   ReturnOrderEntity,
+  ReturnOrderImgEntity,
   UserEntity,
 } from '../../entities';
 import { ReturnOrderDto } from './dto/return-order.do';
@@ -25,6 +27,7 @@ import { WalletsRepository } from '../../repositories/wallets.repository';
 import { GetReturnOrder } from './dto/get-return-order.dto';
 import { applyPagination } from '../../utils/utils';
 import { ReturnOrderResponse } from './dto/get-return-order-res.dto';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class ReturnOrderService {
@@ -36,13 +39,16 @@ export class ReturnOrderService {
   productdetailReturn: string;
   invoiceAlias: string;
   productAlias: string;
+  returnOrderImgAlias: string;
   constructor(
     private readonly returnOrderRepo: ReturnOrderRepository,
     private readonly orderRepo: OrderRepository,
     private readonly productDetailRepo: ProductDetailsRepository,
     private readonly walleRepo: WalletsRepository,
     private readonly invoiceRepo: InvoiceRepository,
-    private readonly orderDetailRepo: OrderDetailRepository
+    private readonly orderDetailRepo: OrderDetailRepository,
+    private readonly returnOrderImgRepo: ReturnOrderImgRepository,
+    private readonly cloudinaryService: CloudinaryService
   ) {
     this.orderAlias = OrderEntity.name;
     this.returnOrderAlias = ReturnOrderEntity.name;
@@ -52,10 +58,15 @@ export class ReturnOrderService {
     this.productdetailReturn = `${OrderDetailEntity.name}Return`;
     this.invoiceAlias = InvoiceEntity.name;
     this.productAlias = ProductsEntity.name;
+    this.returnOrderImgAlias = ReturnOrderImgEntity.name;
   }
 
   @Transactional()
-  async returnOrder(user: UserEntity, { orderId, productDetailId, quantity, reason }: ReturnOrderDto) {
+  async returnOrder(
+    files: Express.Multer.File[],
+    user: UserEntity,
+    { orderId, productDetailId, quantity, reason }: ReturnOrderDto
+  ) {
     const [order, productDetail] = await Promise.all([
       this.orderRepo
         .createQueryBuilder(this.orderAlias)
@@ -100,7 +111,7 @@ export class ReturnOrderService {
     if (quantity > orderDetailFind.quantity) {
       throw new BadRequestException(ErrorMessage.EXCEED_QUANTITY);
     }
-    await this.returnOrderRepo.save(
+    const returnOrder = await this.returnOrderRepo.save(
       this.returnOrderRepo.create({
         order: { id: orderId },
         user: { id: user.id },
@@ -111,6 +122,26 @@ export class ReturnOrderService {
         status: OrderReturnStatus.Pending,
       })
     );
+
+    if (files.length > 0) {
+      const uploadPromises = files.map((file) => this.cloudinaryService.uploadImage(file, 'KLTN/return-order'));
+
+      const uploadResults = await Promise.all(uploadPromises);
+
+      if (uploadResults.length > 0) {
+        const returnOrderImgs = uploadResults.map((e) =>
+          this.returnOrderImgRepo.create({
+            publicId: e.public_id,
+            img: e.url,
+            returnOrder: {
+              id: returnOrder.id,
+            },
+          })
+        );
+
+        await this.returnOrderImgRepo.save(returnOrderImgs);
+      }
+    }
 
     return [];
   }
@@ -215,6 +246,7 @@ export class ReturnOrderService {
       .leftJoin(`${this.returnOrderAlias}.order`, this.orderAlias)
       .leftJoin(`${this.orderAlias}.orderDetails`, this.orderDetailAlias)
       .leftJoin(`${this.orderDetailAlias}.sku`, this.productDetailAlias)
+      .leftJoin(`${this.returnOrderAlias}.returnOrderImg`, this.returnOrderImgAlias)
       .select([
         `${this.returnOrderAlias}.id`,
         `${this.returnOrderAlias}.status`,
@@ -231,6 +263,8 @@ export class ReturnOrderService {
         `${this.orderDetailAlias}.id`,
         `${this.orderDetailAlias}.unit_price`,
         `${this.productDetailAlias}.id`,
+        `${this.returnOrderImgAlias}.id`,
+        `${this.returnOrderImgAlias}.img`,
       ]);
 
     if (status) {

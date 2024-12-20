@@ -6,9 +6,11 @@ import {
   OrderDetailRepository,
   OrderRepository,
   ProductDetailsRepository,
+  ReturnOrderImgRepository,
   ReturnOrderRepository,
 } from '../../repositories';
 import { WalletsRepository } from '../../repositories/wallets.repository';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
   providers: [
@@ -19,7 +21,9 @@ import { WalletsRepository } from '../../repositories/wallets.repository';
     WalletsRepository,
     InvoiceRepository,
     OrderDetailRepository,
+    ReturnOrderImgRepository,
   ],
   controllers: [ReturnOrderController],
+  imports: [CloudinaryModule],
 })
 export class ReturnOrderModule {}

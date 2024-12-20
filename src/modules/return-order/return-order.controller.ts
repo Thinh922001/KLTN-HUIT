@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { BaseController } from '../../vendors/base/base-controller';
 import { ReturnOrderDto } from './dto/return-order.do';
 import { ReturnOrderService } from './return-order.service';
@@ -9,6 +9,7 @@ import { ApiKeyGuard } from '../../vendors/guards/Api-key/api-key.guard';
 import { AdminAuthGuard } from '../../vendors/guards/admin/jwt-admin.guard';
 import { ChangeStatusReturnOrder } from './dto/change-status.dto';
 import { GetReturnOrder } from './dto/get-return-order.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('return-order')
 export class ReturnOrderController extends BaseController {
@@ -26,8 +27,13 @@ export class ReturnOrderController extends BaseController {
 
   @Post()
   @UseGuards(UserAuthGuard)
-  async returnOrder(@AuthUser() user: UserEntity, @Body() body: ReturnOrderDto) {
-    const data = await this.returnOrderService.returnOrder(user, body);
+  @UseInterceptors(FilesInterceptor('img'))
+  async returnOrder(
+    @AuthUser() user: UserEntity,
+    @Body() body: ReturnOrderDto,
+    @UploadedFiles() files: Express.Multer.File[]
+  ) {
+    const data = await this.returnOrderService.returnOrder(files, user, body);
     return this.response([]);
   }
 
