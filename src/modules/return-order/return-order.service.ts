@@ -94,7 +94,7 @@ export class ReturnOrderService {
       throw new BadRequestException(ErrorMessage.ORDER_NOT_FOUND);
     }
 
-    if (order.invoices.some((e) => e.status === 'PAID')) {
+    if (order.invoices.some((e) => e.status !== 'PAID')) {
       throw new BadRequestException(ErrorMessage.USER_NOT_PAID_INVOICE);
     }
 
