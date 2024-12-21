@@ -211,7 +211,7 @@ export class StatisticService {
         .select('YEAR(invoice.created_at)', 'year')
         .addSelect('MONTH(invoice.created_at)', 'month')
         .addSelect('IFNULL(SUM(invoice.total_amount), 0)', 'totalRevenue')
-        .where('YEAR(invoice.created_at) = :year', { year })
+        .where('YEAR(invoice.created_at) = :year AND invoice.status = :status', { year, status: 'PAID' })
         .groupBy('YEAR(invoice.created_at), MONTH(invoice.created_at)')
         .orderBy('YEAR(invoice.created_at), MONTH(invoice.created_at)', 'ASC')
         .getRawMany();
@@ -237,7 +237,7 @@ export class StatisticService {
         .select('YEAR(invoice.created_at)', 'year')
         .addSelect('QUARTER(invoice.created_at)', 'quarter')
         .addSelect('IFNULL(SUM(invoice.total_amount), 0)', 'totalRevenue')
-        .where('YEAR(invoice.created_at) = :year', { year })
+        .where('YEAR(invoice.created_at) = :year AND invoice.status = :status', { year, status: 'PAID' })
         .groupBy('YEAR(invoice.created_at), QUARTER(invoice.created_at)')
         .orderBy('YEAR(invoice.created_at), QUARTER(invoice.created_at)', 'ASC')
         .getRawMany();
