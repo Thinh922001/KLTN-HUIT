@@ -226,7 +226,7 @@ export class StatisticService {
         return {
           year,
           month,
-          totalRevenue: revenue ? +revenue.totalRevenue : 0,
+          totalRevenue: revenue ? Number(revenue.totalRevenue) : 0,
         };
       });
     }
@@ -252,7 +252,7 @@ export class StatisticService {
         return {
           year,
           quarter,
-          totalRevenue: revenue ? +revenue.totalRevenue : 0,
+          totalRevenue: revenue ? Number(revenue.totalRevenue) : 0,
         };
       });
     }
