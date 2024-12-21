@@ -222,11 +222,11 @@ export class StatisticService {
       }));
 
       return months.map(({ year, month }) => {
-        const revenue = result.find((r) => r.year === year && r.month === month);
+        const revenue = result.find((r) => r.year == year && r.month === month);
         return {
           year,
           month,
-          totalRevenue: revenue ? Number(revenue.totalRevenue) : 0,
+          totalRevenue: revenue ? +revenue.totalRevenue : 0,
         };
       });
     }
@@ -248,11 +248,11 @@ export class StatisticService {
       }));
 
       return quarters.map(({ year, quarter }) => {
-        const revenue = result.find((r) => r.year === year && r.quarter === quarter);
+        const revenue = result.find((r) => r.year == year && r.quarter === quarter);
         return {
           year,
           quarter,
-          totalRevenue: revenue ? Number(revenue.totalRevenue) : 0,
+          totalRevenue: revenue ? +revenue.totalRevenue : 0,
         };
       });
     }
