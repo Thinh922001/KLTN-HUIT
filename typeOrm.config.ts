@@ -20,7 +20,7 @@ export default new DataSource({
   migrationsRun: true,
   cache: {
     type: 'redis',
-    duration: 60000,
+    duration: 5000,
     options: {
       url: 'redis://default:UrUeINhOYEMkjkHFVclvPTIjBeqgwqkC@junction.proxy.rlwy.net:38693',
     },
